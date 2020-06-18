@@ -594,7 +594,7 @@ export function disjointCluster(circles) {
 function getBoundingBox(circles) {
   const minMax = (d) => {
     const hi = circles.reduce((acc, c) => Math.max(acc, c[d] + c.radius), Number.NEGATIVE_INFINITY);
-    const lo = circles.reduce((acc, c) => Math.min(acc, c[d] + c.radius), Number.POSITIVE_INFINITY);
+    const lo = circles.reduce((acc, c) => Math.min(acc, c[d] - c.radius), Number.POSITIVE_INFINITY);
     return { max: hi, min: lo };
   };
   return { xRange: minMax('x'), yRange: minMax('y') };
