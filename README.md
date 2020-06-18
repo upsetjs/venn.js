@@ -2,7 +2,7 @@
 
 [![License: MIT][mit-image]][mit-url] [![NPM Package][npm-image]][npm-url] [![Github Actions][github-actions-image]][github-actions-url]
 
-This is a maintained fork of https://github.com/benfred/venn.js.
+This is a maintained fork of [https://github.com/benfred/venn.js](https://github.com/benfred/venn.js).
 
 A javascript library for laying out area proportional venn and euler diagrams.
 
@@ -98,16 +98,16 @@ d3.selectAll('input').on('change', function () {
 
 ##### Making the diagram interactive
 
-Making the diagram interactive is basically the same idea as changing the style: just add event listeners to the elements in the venn diagram. To change the text size and circle colours on mouseover:
+Making the diagram interactive is basically the same idea as changing the style: just add event listeners to the elements in the venn diagram. To change the text size and circle colours on mouseenter:
 
 ```js
 d3.selectAll('#rings .venn-circle')
-  .on('mouseover', function () {
+  .on('mouseenter', function () {
     const node = d3.select(this).transition();
     node.select('path').style('fill-opacity', 0.2);
     node.select('text').style('font-weight', '100').style('font-size', '36px');
   })
-  .on('mouseout', function () {
+  .on('mouseleave', function () {
     const node = d3.select(this).transition();
     node.select('path').style('fill-opacity', 0);
     node.select('text').style('font-weight', '100').style('font-size', '24px');
@@ -139,10 +139,10 @@ div.datum(sets).call(venn.VennDiagram());
 // add a tooltip
 const tooltip = d3.select('body').append('div').attr('class', 'venntooltip');
 
-// add listeners to all the groups to display tooltip on mouseover
+// add listeners to all the groups to display tooltip on mouseenter
 div
   .selectAll('g')
-  .on('mouseover', function (d) {
+  .on('mouseenter', function (d) {
     // sort all the areas relative to the current item
     venn.sortAreas(div, d);
 
@@ -163,7 +163,7 @@ div
     tooltip.style('left', d3.event.pageX + 'px').style('top', d3.event.pageY - 28 + 'px');
   })
 
-  .on('mouseout', function (d) {
+  .on('mouseleave', function (d) {
     tooltip.transition().duration(400).style('opacity', 0);
     const selection = d3.select(this).transition('tooltip').duration(400);
     selection
