@@ -38,10 +38,12 @@
   "unpkg": "build/venn.min.js",
   "jsdelivr": "build/venn.min.js",
   "module": "build/venn.esm.js",
+  "types": "src/index.d.ts",
   "sideEffects": false,
   "files": [
     "build",
-    "src/**/*.js"
+    "src/**/*.js",
+    "src/**/*.d.ts"
   ],
   "browserslist": [
     "Firefox ESR",
