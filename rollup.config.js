@@ -12,12 +12,8 @@ export default [
       file: pkg.main,
       name: 'venn',
       format: 'umd',
-      globals: {
-        'd3-selection': 'd3',
-        'd3-transition': 'd3',
-      },
     },
-    external: Object.keys(pkg.peerDependencies),
+    external: Object.keys(pkg.peerDependencies || {}),
     plugins: [commonjs(), pnp(), resolve(), babel({ babelHelpers: 'runtime' })],
   },
   {
@@ -26,7 +22,7 @@ export default [
       file: pkg.module,
       format: 'esm',
     },
-    external: Object.keys(pkg.peerDependencies).concat(Object.keys(pkg.dependencies)),
+    external: Object.keys(pkg.peerDependencies || {}).concat(Object.keys(pkg.dependencies || {})),
     plugins: [commonjs(), pnp(), resolve()],
   },
 ];

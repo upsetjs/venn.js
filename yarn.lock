@@ -1868,7 +1868,7 @@ __metadata:
     eslint: ^7.2.0
     eslint-config-prettier: ^6.11.0
     eslint-plugin-prettier: ^3.1.4
-    fmin: 0.0.2
+    fmin: ^0.0.2
     jest: ^26.0.1
     jest-image-snapshot: ^4.0.2
     prettier: ^2.0.5
@@ -1877,9 +1877,11 @@ __metadata:
     rollup: ^2.17.0
     rollup-plugin-pnp-resolve: ^2.0.0
     uglify-es: ^3.3.9
-  peerDependencies:
-    d3-selection: ^1.4.1
-    d3-transition: ^1.3.2
+  dependenciesMeta:
+    d3-selection:
+      optional: true
+    d3-transition:
+      optional: true
   languageName: unknown
   linkType: soft
 
@@ -4053,7 +4055,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fmin@npm:0.0.2":
+"fmin@npm:^0.0.2":
   version: 0.0.2
   resolution: "fmin@npm:0.0.2"
   dependencies:
