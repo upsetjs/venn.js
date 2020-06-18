@@ -4,16 +4,17 @@ import { intersectionArea, circleOverlap, circleCircleIntersection, distance } f
 /** given a list of set objects, and their corresponding overlaps.
 updates the (x, y, radius) attribute on each set such that their positions
 roughly correspond to the desired overlaps */
-export function venn(areas, parameters = {}) {
+export function venn(sets, parameters = {}) {
   parameters.maxIterations = parameters.maxIterations || 500;
-  var initialLayout = parameters.initialLayout || bestInitialLayout;
-  var loss = parameters.lossFunction || lossFunction;
+
+  const initialLayout = parameters.initialLayout || bestInitialLayout;
+  const loss = parameters.lossFunction || lossFunction;
 
   // add in missing pairwise areas as having 0 size
-  areas = addMissingAreas(areas);
+  const areas = addMissingAreas(sets);
 
   // initial layout is done greedily
-  var circles = initialLayout(areas, parameters);
+  const circles = initialLayout(areas, parameters);
 
   // transform x/y coordinates to a vector to optimize
   var initial = [],
@@ -28,13 +29,11 @@ export function venn(areas, parameters = {}) {
   }
 
   // optimize initial layout from our loss function
-  var totalFunctionCalls = 0;
-  var solution = nelderMead(
-    function (values) {
-      totalFunctionCalls += 1;
-      var current = {};
-      for (var i = 0; i < setids.length; ++i) {
-        var setid = setids[i];
+  const solution = nelderMead(
+    (values) => {
+      const current = {};
+      for (let i = 0; i < setids.length; ++i) {
+        const setid = setids[i];
         current[setid] = {
           x: values[2 * i],
           y: values[2 * i + 1],
@@ -49,8 +48,8 @@ export function venn(areas, parameters = {}) {
   );
 
   // transform solution vector back to x/y points
-  var positions = solution.x;
-  for (var i = 0; i < setids.length; ++i) {
+  const positions = solution.x;
+  for (let i = 0; i < setids.length; ++i) {
     setid = setids[i];
     circles[setid].x = positions[2 * i];
     circles[setid].y = positions[2 * i + 1];
@@ -59,64 +58,67 @@ export function venn(areas, parameters = {}) {
   return circles;
 }
 
-var SMALL = 1e-10;
+const SMALL = 1e-10;
 
-/** Returns the distance necessary for two circles of radius r1 + r2 to
-have the overlap area 'overlap' */
+/**
+ * Returns the distance necessary for two circles of radius r1 + r2 to
+ * have the overlap area 'overlap'
+ * @param {number} r1
+ * @param {number} r2
+ * @param {number} overlap
+ * @returns {number}
+ */
 export function distanceFromIntersectArea(r1, r2, overlap) {
   // handle complete overlapped circles
   if (Math.min(r1, r2) * Math.min(r1, r2) * Math.PI <= overlap + SMALL) {
     return Math.abs(r1 - r2);
   }
 
-  return bisect(
-    function (distance) {
-      return circleOverlap(r1, r2, distance) - overlap;
-    },
-    0,
-    r1 + r2
-  );
+  return bisect((distance) => circleOverlap(r1, r2, distance) - overlap, 0, r1 + r2);
 }
 
-/** Missing pair-wise intersection area data can cause problems:
- treating as an unknown means that sets will be laid out overlapping,
- which isn't what people expect. To reflect that we want disjoint sets
- here, set the overlap to 0 for all missing pairwise set intersections */
+/**
+ * Missing pair-wise intersection area data can cause problems:
+ * treating as an unknown means that sets will be laid out overlapping,
+ * which isn't what people expect. To reflect that we want disjoint sets
+ * here, set the overlap to 0 for all missing pairwise set intersections
+ * @param {ReadonlyArray<{sets: ReadonlyArray<string>, size: number}>} areas
+ * @returns {ReadonlyArray<{sets: ReadonlyArray<string>, size: number}>}
+ */
 function addMissingAreas(areas) {
-  areas = areas.slice();
+  const r = areas.slice();
 
   // two circle intersections that aren't defined
-  var ids = [],
-    pairs = {},
-    i,
-    j,
-    a,
-    b;
-  for (i = 0; i < areas.length; ++i) {
-    var area = areas[i];
+  const ids = [];
+
+  /** @type {Set<string>} */
+  const pairs = new Set();
+  function toKey(a, b) {
+    return `${a}-${b}`;
+  }
+  for (const area of r) {
     if (area.sets.length == 1) {
       ids.push(area.sets[0]);
     } else if (area.sets.length == 2) {
-      a = area.sets[0];
-      b = area.sets[1];
-      pairs[[a, b]] = true;
-      pairs[[b, a]] = true;
+      const a = area.sets[0];
+      const b = area.sets[1];
+      pairs.add(toKey(a, b));
+      pairs.add(toKey(b, a));
     }
   }
-  ids.sort(function (a, b) {
-    return a > b;
-  });
 
-  for (i = 0; i < ids.length; ++i) {
-    a = ids[i];
-    for (j = i + 1; j < ids.length; ++j) {
-      b = ids[j];
-      if (!([a, b] in pairs)) {
-        areas.push({ sets: [a, b], size: 0 });
+  ids.sort((a, b) => (a === b ? 0 : a < b ? -1 : +1));
+
+  for (let i = 0; i < ids.length; ++i) {
+    const a = ids[i];
+    for (let j = i + 1; j < ids.length; ++j) {
+      const b = ids[j];
+      if (!pairs.has(toKey(a, b))) {
+        r.push({ sets: [a, b], size: 0 });
       }
     }
   }
-  return areas;
+  return r;
 }
 
 /// Returns two matrices, one of the euclidean distances between the sets
@@ -236,7 +238,7 @@ export function constrainedMDSLayout(areas, params) {
 
   // keep distances bounded, things get messed up otherwise.
   // TODO: proper preconditioner?
-  var norm = norm2(distances.map(norm2)) / distances.length;
+  const norm = norm2(distances.map(norm2)) / distances.length;
   distances = distances.map(function (row) {
     return row.map(function (value) {
       return value / norm;

@@ -427,19 +427,25 @@ export function wrapText(circles, labeller) {
   };
 }
 
+/**
+ *
+ * @param {{x: number, y: number}} current
+ * @param {ReadonlyArray<{x: number, y: number}>} interior
+ * @param {ReadonlyArray<{x: number, y: number}>} exterior
+ * @returns {number}
+ */
 function circleMargin(current, interior, exterior) {
-  var margin = interior[0].radius - distance(interior[0], current),
-    i,
-    m;
-  for (i = 1; i < interior.length; ++i) {
-    m = interior[i].radius - distance(interior[i], current);
+  let margin = interior[0].radius - distance(interior[0], current);
+
+  for (let i = 1; i < interior.length; ++i) {
+    const m = interior[i].radius - distance(interior[i], current);
     if (m <= margin) {
       margin = m;
     }
   }
 
-  for (i = 0; i < exterior.length; ++i) {
-    m = distance(exterior[i], current) - exterior[i].radius;
+  for (let i = 0; i < exterior.length; ++i) {
+    const m = distance(exterior[i], current) - exterior[i].radius;
     if (m <= margin) {
       margin = m;
     }
@@ -557,8 +563,8 @@ function getOverlappingCircles(circles) {
 }
 
 export function computeTextCentres(circles, areas, symmetricalTextCentre) {
-  var ret = {},
-    overlapped = getOverlappingCircles(circles);
+  const ret = {};
+  const overlapped = getOverlappingCircles(circles);
   for (var i = 0; i < areas.length; ++i) {
     var area = areas[i].sets,
       areaids = {},
@@ -635,6 +641,12 @@ export function sortAreas(div, relativeTo) {
   });
 }
 
+/**
+ * @param {number} x
+ * @param {number} y
+ * @param {number} r
+ * @returns {number}
+ */
 export function circlePath(x, y, r) {
   const ret = [];
   ret.push('\nM', x, y);
@@ -644,13 +656,21 @@ export function circlePath(x, y, r) {
   return ret.join(' ');
 }
 
-// inverse of the circlePath function, returns a circle object from an svg path
+/**
+ * inverse of the circlePath function, returns a circle object from an svg path
+ * @param {string} path
+ * @returns {{x: number, y: number, radius: number}}
+ */
 export function circleFromPath(path) {
   const tokens = path.split(' ');
   return { x: Number.parseFloat(tokens[1]), y: Number.parseFloat(tokens[2]), radius: -Number.parseFloat(tokens[4]) };
 }
 
-/** returns a svg path of the intersection area of a bunch of circles */
+/**
+ * returns a svg path of the intersection area of a bunch of circles
+ * @param {ReadonlyArray<{x: number, y: number, radius: number}>} circles
+ * @returns {string}
+ */
 export function intersectionAreaPath(circles) {
   const stats = {};
   intersectionArea(circles, stats);
