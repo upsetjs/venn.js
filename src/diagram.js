@@ -1,5 +1,5 @@
-import { select, selectAll } from 'd3-selection';
-import { transition } from 'd3-transition';
+import { select } from 'd3-selection';
+import 'd3-transition';
 
 import { venn, lossFunction, normalizeSolution, scaleSolution } from './layout';
 import { intersectionArea, distance, getCenter } from './circleintersection';

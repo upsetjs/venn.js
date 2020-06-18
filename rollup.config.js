@@ -7,7 +7,7 @@ import pkg from './package.json';
 
 export default [
   {
-    input: 'src/bundle.js',
+    input: 'src/index.js',
     output: {
       file: pkg.main,
       name: 'venn',
