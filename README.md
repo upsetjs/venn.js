@@ -169,7 +169,7 @@ div
 Besides the handy `VennDiagram` wrapper, the library can used as a pure layout function using the `layout` method.
 One can render the result manually in D3 or even in HTML Canvas.
 
-### Custom D# Rendering
+### Custom D3 Rendering
 
 ```js
 // compute layout data
