@@ -20,7 +20,7 @@ npm install --save @upsetjs/venn.js
 ### Usage
 
 This library depends on [d3.js](http://d3js.org/) to display the venn
-diagrams.
+diagrams. But it can also be used as plain layout library.
 
 ##### Simple layout
 
@@ -163,6 +163,59 @@ div
 ```
 
 [View this example](http://benfred.github.io/venn.js/examples/intersection_tooltip.html)
+
+## Manual Usage
+
+Besides the handy `VennDiagram` wrapper, the library can used as a pure layout function using the `layout` method.
+One can render the result manually in D3 or even in HTML Canvas.
+
+### Custom D# Rendering
+
+```js
+// compute layout data
+const data = venn.layout(sets, { width: 640, height: 640 });
+// custom data binding and rendering
+const g = d3
+  .select('#venn')
+  .selectAll('g')
+  .data(data)
+  .join((enter) => {
+    const g = enter.append('g');
+    g.append('title');
+    g.append('path');
+    g.append('text');
+    return g;
+  });
+g.select('title').text((d) => d.data.sets.toString());
+g.select('text')
+  .text((d) => d.data.sets.toString())
+  .attr('x', (d) => d.text.x)
+  .attr('y', (d) => d.text.y);
+g.select('path')
+  .attr('d', (d) => d.path)
+  .style('fill', (d, i) => (d.circles.length === 1 ? d3.schemeCategory10[i] : undefined));
+```
+
+### Canvas Rendering
+
+```js
+const data = venn.layout(sets, { width: 640, height: 640 });
+const ctx = document.querySelector('canvas').getContext('2d');
+
+data.forEach((d, i) => {
+  ctx.fillStyle = `hsla(${(360 * i) / data.length},80%,50%,0.6)`;
+  ctx.fill(new Path2D(d.path));
+});
+
+ctx.font = '16px Helvetica Neue, Helvetica, Arial, sans-serif';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'central';
+ctx.fillStyle = 'white';
+
+data.forEach((d, i) => {
+  ctx.fillText(d.data.sets.toString(), d.text.x, d.text.y);
+});
+```
 
 ## License
 
