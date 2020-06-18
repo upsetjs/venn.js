@@ -18,5 +18,5 @@ export {
   circlePath,
   circleFromPath,
   intersectionAreaPath,
-  computeVennLayout,
+  layout,
 } from './diagram';

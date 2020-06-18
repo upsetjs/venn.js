@@ -37,7 +37,7 @@
       { sets: ['Information', 'Things That Overlap', 'Circles'], size: 2, label: 'Venn Diagrams' },
     ];
 
-    const data = venn.computeVennLayout(sets, { width: 640, height: 640 });
+    const data = venn.layout(sets, { width: 640, height: 640 });
     const g = d3
       .select('#venn')
       .selectAll('g')

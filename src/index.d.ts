@@ -254,7 +254,7 @@ export interface IVennLayout<T> {
   arcs: readonly { circle: ICircle; width: number; p1: IPoint; p2: IPoint }[];
   path: string;
 }
-export function computeVennLayout<T extends ISetOverlap>(
+export function layout<T extends ISetOverlap>(
   data: readonly T[],
   options?: IComputeVennLayoutOptions
 ): IVennLayout<T>[];

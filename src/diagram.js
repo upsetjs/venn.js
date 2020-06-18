@@ -1,6 +1,3 @@
-import { select } from 'd3-selection';
-import 'd3-transition';
-
 import { venn, lossFunction, normalizeSolution, scaleSolution } from './layout';
 import { intersectionArea, distance, getCenter } from './circleintersection';
 import { nelderMead } from 'fmin';
@@ -132,7 +129,7 @@ export function VennDiagram(options = {}) {
     const previous = {};
     let hasPrevious = false;
     svg.selectAll('.venn-area path').each(function (d) {
-      var path = select(this).attr('d');
+      const path = this.getAttribute('d');
       if (d.sets.length == 1 && path) {
         hasPrevious = true;
         previous[d.sets[0]] = circleFromPath(path);
@@ -204,10 +201,17 @@ export function VennDiagram(options = {}) {
       });
     }
 
+    function asTransition(s) {
+      if (typeof s.transition === 'function') {
+        return s.transition('venn').duration(duration);
+      }
+      return s;
+    }
+
     // update existing, using pathTween if necessary
     let update = selection;
     if (hasPrevious) {
-      update = selection.transition('venn').duration(duration);
+      update = asTransition(selection);
       update.selectAll('path').attrTween('d', pathTween);
     } else {
       update.selectAll('path').attr('d', (d) => intersectionAreaPath(d.sets.map((set) => circles[set])));
@@ -235,7 +239,7 @@ export function VennDiagram(options = {}) {
     }
 
     // remove old
-    const exit = nodes.exit().transition('venn').duration(duration).remove();
+    const exit = asTransition(nodes.exit()).remove();
     exit.selectAll('path').attrTween('d', pathTween);
 
     const exitText = exit
@@ -354,9 +358,8 @@ export function VennDiagram(options = {}) {
 // http://engineering.findthebest.com/wrapping-axis-labels-in-d3-js/
 // this seems to be one of those things that should be easy but isn't
 export function wrapText(circles, labeller) {
-  return function () {
-    const text = select(this);
-    const data = text.datum();
+  return function (data) {
+    const text = this;
     const width = circles[data.sets[0]].radius || 50;
     const label = labeller(data) || '';
 
@@ -365,10 +368,20 @@ export function wrapText(circles, labeller) {
     const minChars = (label.length + words.length) / maxLines;
 
     let word = words.pop();
-    const line = [word];
+    let line = [word];
     let lineNumber = 0;
     const lineHeight = 1.1; // ems
-    let tspan = text.text(null).append('tspan').text(word);
+    text.textContent = null; // clear
+    const tspans = [];
+
+    function append(word) {
+      const tspan = text.ownerDocument.createElementNS(text.namespaceURI, 'tspan');
+      tspan.textContent = word;
+      tspans.push(tspan);
+      text.append(tspan);
+      return tspan;
+    }
+    let tspan = append(word);
 
     while (true) {
       word = words.pop();
@@ -377,25 +390,24 @@ export function wrapText(circles, labeller) {
       }
       line.push(word);
       const joined = line.join(' ');
-      tspan.text(joined);
-      if (joined.length > minChars && tspan.node().getComputedTextLength() > width) {
+      tspan.textContent = joined;
+      if (joined.length > minChars && tspan.getComputedTextLength() > width) {
         line.pop();
-        tspan.text(line.join(' '));
+        tspan.textContent = line.join(' ');
         line = [word];
-        tspan = text.append('tspan').text(word);
+        tspan = append(word);
         lineNumber++;
       }
     }
 
     const initial = 0.35 - (lineNumber * lineHeight) / 2;
-    const x = text.attr('x');
-    const y = text.attr('y');
-
-    text
-      .selectAll('tspan')
-      .attr('x', x)
-      .attr('y', y)
-      .attr('dy', (_, i) => `${initial + i * lineHeight}em`);
+    const x = text.getAttribute('x');
+    const y = text.getAttribute('y');
+    tspans.forEach((t, i) => {
+      t.setAttribute('x', x);
+      t.setAttribute('y', y);
+      t.setAttribute('dy', `${initial + i * lineHeight}em`);
+    });
   };
 }
 
@@ -677,7 +689,7 @@ export function intersectionAreaPath(circles) {
   return arcsToPath(intersectionAreaArcs(circles));
 }
 
-export function computeVennLayout(data, options = {}) {
+export function layout(data, options = {}) {
   const {
     lossFunction: loss = lossFunction,
     layoutFunction: layout = venn,
