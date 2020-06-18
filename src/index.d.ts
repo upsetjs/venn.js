@@ -169,18 +169,24 @@ export function intersectionAreaPath(circles: readonly ICircle[]): string;
 
 export interface IVennDiagramOptions {
   colourScheme?: readonly string[];
+  colorScheme?: readonly string[];
   symmetricalTextCentre?: boolean;
   textFill?: string;
 }
 
+export interface IStyledSetOverlap extends ISetOverlap {
+  color?: string;
+  colour?: string;
+}
+
 export interface IVennDiagram {
-  (selection: Selection<HTMLElement, readonly ISetOverlap[], unknown, unknown>): {
+  (selection: Selection<HTMLElement, readonly IStyledSetOverlap[], unknown, unknown>): {
     circles: ISolution;
     textCentres: { [set: string]: IPoint };
-    nodes: Selection<SVGGElement, ISetOverlap, unknown, unknown>;
-    enter: Selection<SVGGElement, ISetOverlap, unknown, unknown>;
-    update: Selection<SVGGElement, ISetOverlap, unknown, unknown>;
-    exit: Selection<SVGGElement, ISetOverlap, unknown, unknown>;
+    nodes: Selection<SVGGElement, IStyledSetOverlap, unknown, unknown>;
+    enter: Selection<SVGGElement, IStyledSetOverlap, unknown, unknown>;
+    update: Selection<SVGGElement, IStyledSetOverlap, unknown, unknown>;
+    exit: Selection<SVGGElement, IStyledSetOverlap, unknown, unknown>;
   };
 
   wrap(): boolean;
@@ -194,6 +200,8 @@ export interface IVennDiagram {
   padding(v: number): this;
   colours(): (key: string) => string;
   colours(v: (key: string) => string): this;
+  colors(): (key: string) => string;
+  colors(v: (key: string) => string): this;
   fontSize(): string | null;
   fontSize(v: string | null): this;
 

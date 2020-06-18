@@ -42,6 +42,8 @@ export function VennDiagram(options = {}) {
     colourScheme =
       options && options.colourScheme
         ? options.colourScheme
+        : options && options.colorScheme
+        ? options.colorScheme
         : [
             '#1f77b4',
             '#ff7f0e',
@@ -168,7 +170,10 @@ export function VennDiagram(options = {}) {
       .append('g')
       .attr(
         'class',
-        (d) => `venn-area venn-${d.sets.length == 1 ? 'circle' : 'intersection'}${d.colour ? ' venn-coloured' : ''}`
+        (d) =>
+          `venn-area venn-${d.sets.length == 1 ? 'circle' : 'intersection'}${
+            d.colour || d.color ? ' venn-coloured' : ''
+          }`
       )
       .attr('data-venn-sets', (d) => d.sets.join('_'));
 
@@ -187,11 +192,11 @@ export function VennDiagram(options = {}) {
       enterPath
         .style('fill-opacity', '0')
         .filter((d) => d.sets.length == 1)
-        .style('fill', (d) => (d.colour ? d.colour : colours(d.sets)))
+        .style('fill', (d) => (d.colour ? d.colour : d.color ? d.color : colours(d.sets)))
         .style('fill-opacity', '.25');
 
       enterText.style('fill', (d) => {
-        if (d.colour) {
+        if (d.colour || d.color) {
           return '#FFF';
         }
         if (options.textFill) {
@@ -289,6 +294,12 @@ export function VennDiagram(options = {}) {
 
   chart.colours = function (_) {
     if (!arguments.length) return colours;
+    colours = _;
+    return chart;
+  };
+
+  chart.colors = function (_) {
+    if (!arguments.length) return colors;
     colours = _;
     return chart;
   };
