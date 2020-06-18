@@ -98,9 +98,9 @@ function addMissingAreas(areas) {
     return `${a}-${b}`;
   }
   for (const area of r) {
-    if (area.sets.length == 1) {
+    if (area.sets.length === 1) {
       ids.push(area.sets[0]);
-    } else if (area.sets.length == 2) {
+    } else if (area.sets.length === 2) {
       const a = area.sets[0];
       const b = area.sets[1];
       pairs.add(toKey(a, b));
@@ -143,7 +143,7 @@ export function getDistanceMatrices(areas, sets, setids) {
   // compute required distances between all the sets such that
   // the areas match
   areas
-    .filter((x) => x.sets.length == 2)
+    .filter((x) => x.sets.length === 2)
     .forEach((current) => {
       const left = setids[current.sets[0]];
       const right = setids[current.sets[1]];
@@ -239,7 +239,7 @@ export function constrainedMDSLayout(areas, params = {}) {
   const sets = [];
   const setids = {};
   for (const area of areas) {
-    if (area.sets.length == 1) {
+    if (area.sets.length === 1) {
       setids[area.sets[0]] = sets.length;
       sets.push(area);
     }
@@ -302,7 +302,7 @@ export function greedyLayout(areas, params) {
   /** @type {{[key: string]: {set: string, size: number, weight: number}[]}} */
   const setOverlaps = {};
   for (const area of areas) {
-    if (area.sets.length == 1) {
+    if (area.sets.length === 1) {
       const set = area.sets[0];
       circles[set] = {
         x: 1e10,
@@ -315,11 +315,11 @@ export function greedyLayout(areas, params) {
     }
   }
 
-  areas = areas.filter((a) => a.sets.length == 2);
+  areas = areas.filter((a) => a.sets.length === 2);
 
   // map each set to a list of all the other sets that overlap it
   for (const current of areas) {
-    const weight = current.weight != null ? current.weight : 1.0;
+    let weight = current.weight != null ? current.weight : 1.0;
     const left = current.sets[0];
     const right = current.sets[1];
 
@@ -328,8 +328,8 @@ export function greedyLayout(areas, params) {
       weight = 0;
     }
 
-    setOverlaps[left].push({ set: right, size: current.size, weight: weight });
-    setOverlaps[right].push({ set: left, size: current.size, weight: weight });
+    setOverlaps[left].push({ set: right, size: current.size, weight });
+    setOverlaps[right].push({ set: left, size: current.size, weight });
   }
 
   // get list of most overlapped sets
@@ -340,7 +340,7 @@ export function greedyLayout(areas, params) {
       size += setOverlaps[set][i].size * setOverlaps[set][i].weight;
     }
 
-    mostOverlapped.push({ set: set, size: size });
+    mostOverlapped.push({ set, size });
   });
 
   // sort by size desc
@@ -442,12 +442,12 @@ export function lossFunction(circles, overlaps) {
   let output = 0;
 
   for (const area of overlaps) {
-    if (area.sets.length == 1) {
+    if (area.sets.length === 1) {
       continue;
     }
     /** @type {number} */
     let overlap;
-    if (area.sets.length == 2) {
+    if (area.sets.length === 2) {
       const left = circles[area.sets[0]];
       const right = circles[area.sets[1]];
       overlap = circleOverlap(left.radius, right.radius, distance(left, right));
@@ -486,7 +486,7 @@ function orientateCircles(circles, orientation, orientationOrder) {
     }
   }
 
-  if (circles.length == 2) {
+  if (circles.length === 2) {
     // if the second circle is a subset of the first, arrange so that
     // it is off to one side. hack for https://github.com/benfred/venn.js/issues/120
     const dist = distance(circles[0], circles[1]);
@@ -614,7 +614,7 @@ export function normalizeSolution(solution, orientation, orientationOrder) {
 
   // work with a list instead of a dictionary, and take a copy so we
   // don't mutate input
-  let circles = Object.keys(solution).map((setid) => Object.assign({}, solution[setid], { setid }));
+  let circles = fromObjectNotation(solution).map((d) => Object.assign({}, d));
 
   // get all the disjoint clusters
   const clusters = disjointCluster(circles);
@@ -691,12 +691,7 @@ export function normalizeSolution(solution, orientation, orientationOrder) {
   }
 
   // convert back to solution form
-  /** @type {{[setid: string]: {x: number, y: number, radius: number}}} */
-  const ret = {};
-  for (const circle of circles) {
-    ret[circle.setid] = circle;
-  }
-  return ret;
+  return toObjectNotation(circles);
 }
 
 /**
@@ -712,18 +707,14 @@ export function normalizeSolution(solution, orientation, orientationOrder) {
  * @returns {{[setid: string]: {x: number, y: number, radius: number}}}
  */
 export function scaleSolution(solution, width, height, padding, scaleToFit) {
-  /** @type {{x: number, y: number, radius: number}[]} */
-  const circles = [];
-  /** @type {string[]} */
-  const setids = Object.keys(solution);
-  setids.forEach((setid) => circles.push(solution[setid]));
+  const circles = fromObjectNotation(solution);
 
   width -= 2 * padding;
   height -= 2 * padding;
 
   const { xRange, yRange } = getBoundingBox(circles);
 
-  if (xRange.max == xRange.min || yRange.max == yRange.min) {
+  if (xRange.max === xRange.min || yRange.max === yRange.min) {
     console.log('not scaling solution: zero size detected');
     return solution;
   }
@@ -746,16 +737,33 @@ export function scaleSolution(solution, width, height, padding, scaleToFit) {
   const xOffset = (width - (xRange.max - xRange.min) * scaling) / 2;
   const yOffset = (height - (yRange.max - yRange.min) * scaling) / 2;
 
-  /** @type {{[setid: string]: {x: number, y: number, radius: number}}} */
-  const scaled = {};
-  for (let i = 0; i < circles.length; ++i) {
-    const circle = circles[i];
-    scaled[setids[i]] = {
+  return toObjectNotation(
+    circles.map((circle) => ({
       radius: scaling * circle.radius,
       x: padding + xOffset + (circle.x - xRange.min) * scaling,
       y: padding + yOffset + (circle.y - yRange.min) * scaling,
-    };
-  }
+      setid: circle.setid,
+    }))
+  );
+}
 
-  return scaled;
+/**
+ * @param {readonly {x: number, y: number, radius: number, setid: string}[]} circles
+ * @returns {{[setid: string]: {x: number, y: number, radius: number}}}
+ */
+function toObjectNotation(circles) {
+  /** @type {{[setid: string]: {x: number, y: number, radius: number}}} */
+  const r = {};
+  for (const circle of circles) {
+    r[circle.setid] = circle;
+  }
+  return r;
+}
+/**
+ * @param {{[setid: string]: {x: number, y: number, radius: number}}} solution
+ * @returns {{x: number, y: number, radius: number, setid: string}[]}}
+ */
+function fromObjectNotation(solution) {
+  const setids = Object.keys(solution);
+  return setids.map((id) => Object.assign(solution[id], { setid: id }));
 }

@@ -83,7 +83,7 @@
   "scripts": {
     "clean": "rimraf build *.tgz",
     "watch": "rollup -c -w",
-    "lint": "eslint src",
+    "lint": "eslint src --ext js",
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "posttest": "npm run lint",
