@@ -3,22 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <title>Venn diagram of Venn diagrams</title>
-    <style>
-      body {
-        font-size: 16px;
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      }
-    </style>
   </head>
 
   <body>
-    <div id="venn"></div>
+    <canvas id="venn" width="640" height="640"></canvas>
   </body>
-
-  <script src="https://d3js.org/d3.v4.min.js"></script>
   <script src="../build/venn.js"></script>
   <script>
-    var sets = [
+    const sets = [
       { sets: ['Information'], size: 12 },
       { sets: ['Things That Overlap'], size: 12 },
       { sets: ['Circles'], size: 12 },
@@ -28,11 +20,19 @@
       { sets: ['Information', 'Things That Overlap', 'Circles'], size: 2, label: 'Venn Diagrams' },
     ];
 
-    var chart = venn.VennDiagram();
-    chart.wrap(false).width(640).height(640);
+    const data = venn.layout(sets, { width: 640, height: 640 });
+    const ctx = document.querySelector('canvas').getContext('2d');
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'central';
 
-    var div = d3.select('#venn').datum(sets).call(chart);
-    div.selectAll('text').style('fill', 'white');
-    div.selectAll('.venn-circle path').style('fill-opacity', 0.6);
+    data.forEach((d, i) => {
+      ctx.fillStyle = `hsla(${(360 * i) / data.length},80%,50%,0.6)`;
+      ctx.fill(new Path2D(d.path));
+    });
+    ctx.fillStyle = 'white';
+    ctx.font = '16px Helvetica Neue, Helvetica, Arial, sans-serif';
+    data.forEach((d, i) => {
+      ctx.fillText(d.data.label || d.data.sets.toString(), d.text.x, d.text.y);
+    });
   </script>
 </html>

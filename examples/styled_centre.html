@@ -24,7 +24,7 @@
 
     <div id="rings">
       <script>
-        var chart = venn.VennDiagram().width(500).height(500);
+        var chart = venn.VennDiagram({ symmetricalTextCentre: true }).width(500).height(500);
 
         d3.select('#rings').datum(sets).call(chart);
 
@@ -48,7 +48,7 @@
     </div>
     <div id="inverted">
       <script>
-        var chart = venn.VennDiagram().width(500).height(500);
+        var chart = venn.VennDiagram({ symmetricalTextCentre: true }).width(500).height(500);
 
         d3.select('#inverted').datum(sets).call(chart);
 
@@ -59,7 +59,7 @@
     </div>
     <div id="mono">
       <script>
-        var chart = venn.VennDiagram().width(500).height(500);
+        var chart = venn.VennDiagram({ symmetricalTextCentre: true }).width(500).height(500);
 
         d3.select('#mono').datum(sets).call(chart);
 
@@ -74,7 +74,7 @@
     <div id="dropshadow">
       <link href="http://fonts.googleapis.com/css?family=Shadows+Into+Light" rel="stylesheet" type="text/css" />
       <script>
-        var chart = venn.VennDiagram().width(500).height(500);
+        var chart = venn.VennDiagram({ symmetricalTextCentre: true }).width(500).height(500);
 
         d3.select('#dropshadow').datum(sets).call(chart);
 
@@ -119,7 +119,7 @@
     </div>
     <div id="original">
       <script>
-        var chart = venn.VennDiagram().width(500).height(500);
+        var chart = venn.VennDiagram({ symmetricalTextCentre: true }).width(500).height(500);
 
         d3.select('#original').datum(sets).call(chart);
       </script>
