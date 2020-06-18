@@ -177,15 +177,19 @@ yarn
 yarn pnpify --sdk
 ```
 
-### Building
+### Common commands
 
 ```sh
-yarn install
+yarn test
+yarn lint
+yarn format
 yarn build
+yarn release
+yarn release:pre
 ```
 
-[npm-image]: https://badge.fury.io/js/chartjs-chart-pcp.svg
-[npm-url]: https://npmjs.org/package/chartjs-chart-pcp
-[github-actions-image]: https://github.com/sgratzl/chartjs-chart-pcp/workflows/ci/badge.svg
-[github-actions-url]: https://github.com/sgratzl/chartjs-chart-pcp/actions
+[npm-image]: https://badge.fury.io/js/%40upsetjs%2Fvenn.js.svg
+[npm-url]: https://npmjs.org/package/@upsetjs/venn.js
+[github-actions-image]: https://github.com/upsetjs/venn.js/workflows/ci/badge.svg
+[github-actions-url]: https://github.com/upsetjs/venn.js/actions
 [codepen]: https://img.shields.io/badge/CodePen-open-blue?logo=codepen
