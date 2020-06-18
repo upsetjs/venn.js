@@ -1,56 +1,98 @@
 {
-  "name": "venn.js",
-  "version": "0.2.20",
-  "author": "Ben Frederickson <ben@benfrederickson.com> (http:/www.benfrederickson.com)",
-  "url": "https://github.com/benfred/venn.js/issues",
-  "devDependencies": {
-    "backstopjs": "3.8.8",
-    "jshint": "^2.8.0",
-    "rollup": "^0.59.4",
-    "rollup-plugin-commonjs": "^9.1.3",
-    "rollup-plugin-node-resolve": "^3.3.0",
-    "tape": "4",
-    "uglify-js": "3"
-  },
+  "name": "@upsetjs/venn.js",
   "description": "Area Proportional Venn and Euler Diagrams",
-  "main": "build/venn.js",
-  "jsnext:main": "index",
-  "files": [
-    "build",
-    "src",
-    "*.js"
-  ],
-  "directories": {
-    "example": "examples",
-    "test": "tests"
+  "version": "1.0.0",
+  "author": {
+    "name": "Ben Frederickson",
+    "email": "ben@benfrederickson.com",
+    "url": "http:/www.benfrederickson.com"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/benfred/venn.js.git"
+  "contributors": [
+    {
+      "name": "Samuel Gratzl",
+      "email": "samu@sgratzl.com",
+      "url": "https://wwww.sgratzl.com"
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/upsetjs/venn.js",
+  "bugs": {
+    "url": "https://github.com/upsetjs/venn.js/issues"
   },
   "keywords": [
     "Venn",
     "Euler"
   ],
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/benfred/venn.js/issues"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/upsetjs/venn.js.git"
   },
-  "homepage": "https://github.com/benfred/venn.js",
-  "jshintConfig": {
-    "esnext": true
+  "directories": {
+    "example": "examples",
+    "test": "tests"
   },
-  "scripts": {
-    "pretest": "rm -rf build && rollup -c && cp build/venn.js .",
-    "test": "jshint src/*.js && tape 'tests/**/*test.js' && backstop test --config=./backstop.ci.js",
-    "backstop-check": "backstop test --config=./backstop.dev.js",
-    "backstop-approve": "backstop approve",
-    "prepublish": "npm run test && uglifyjs build/venn.js -c -m -o build/venn.min.js",
-    "postpublish": "zip -j build/venn.zip -- LICENSE README.md build/venn.js build/venn.min.js"
+  "main": "build/venn.js",
+  "unpkg": "build/venn.min.js",
+  "jsdelivr": "build/venn.min.js",
+  "module": "build/venn.esm.js",
+  "sideEffects": false,
+  "files": [
+    "build",
+    "src/**/*.js"
+  ],
+  "browserslist": [
+    "Firefox ESR",
+    "last 2 Chrome versions",
+    "last 2 Firefox versions"
+  ],
+  "peerDependencies": {
+    "d3-selection": "^1.4.1",
+    "d3-transition": "^1.3.2"
   },
   "dependencies": {
-    "fmin": "0.0.2",
-    "d3-selection": "^1.0.2",
-    "d3-transition": "^1.0.1"
+    "@babel/runtime": "^7.10.2",
+    "fmin": "^0.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.10.2",
+    "@babel/plugin-transform-runtime": "^7.10.1",
+    "@babel/preset-env": "^7.10.2",
+    "@rollup/plugin-babel": "^5.0.3",
+    "@rollup/plugin-commonjs": "^13.0.0",
+    "@rollup/plugin-node-resolve": "^8.0.1",
+    "@yarnpkg/pnpify": "^2.0.0-rc.25",
+    "babel-jest": "^26.0.1",
+    "canvas": "^2.6.1",
+    "d3-selection": "^1.4.1",
+    "d3-transition": "^1.3.2",
+    "eslint": "^7.2.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "jest": "^26.0.1",
+    "jest-image-snapshot": "^4.0.2",
+    "prettier": "^2.0.5",
+    "release-it": "^13.6.3",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.17.0",
+    "rollup-plugin-pnp-resolve": "^2.0.0",
+    "uglify-es": "^3.3.9"
+  },
+  "scripts": {
+    "clean": "rimraf build *.tgz",
+    "watch": "rollup -c -w",
+    "lint": "eslint src",
+    "test": "jest --passWithNoTests",
+    "test:watch": "jest --watch",
+    "posttest": "npm run lint",
+    "build:dev": "rollup -c",
+    "build:prod": "npm run build:dev && uglifyjs build/venn.js -c -m -o build/venn.min.js",
+    "prebuild": "npm run clean && npm test",
+    "build": "npm run build:prod",
+    "format": "prettier --write examples \"*.{md,json,js,yml}\" \"{.github,src,examples}/**\"",
+    "preversion": "npm run test",
+    "prepare": "npm run build:dev",
+    "prepublishOnly": "npm run build:prod",
+    "release": "release-it --disable-metrics --npm.skipChecks",
+    "release:pre": "release-it --disable-metrics --npm.skipChecks --preRelease=alpha --npm.tag=next"
   }
 }

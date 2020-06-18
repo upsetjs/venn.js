@@ -1,7 +1,18 @@
-.idea
-package-lock.json
-node_modules
-build
-backstop_data/bitmaps_test
-backstop_data/html_report
-backstop_data/ci_report
+# Logs
+logs
+*.log
+npm-debug.log*
+
+/coverage
+/node_modules
+.npm
+/.yarnrc.yml
+/.yarn
+/.pnp.js
+
+# Build files
+/build
+
+*.tgz
+/.vscode
+__diff_output__
