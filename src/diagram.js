@@ -22,7 +22,7 @@ import { nelderMead } from 'fmin';
  *
  * @param {object} options
  */
-export function VennDiagram(options) {
+export function VennDiagram(options = {}) {
   var useViewBox = false,
     width = 600,
     height = 350,
