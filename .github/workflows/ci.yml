@@ -21,19 +21,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
       - run: yarn install
-        env:
-          CI: true
       - run: yarn build
-        env:
-          CI: true
       - run: yarn lint
-        env:
-          CI: true
       - run: yarn test
-        env:
-          CI: true
       - uses: actions/upload-artifact@v2
         if: failure()
         with:
           name: diff outputs
           path: src/**/__diff_output__/*.png
+      - name: Prepare Deploy
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        run: |
+          mkdir -p public/build
+          cp README.md public/README.md
+          cp -r examples public/
+          cp build/venn.js public/build/
+      - name: Deploy
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public

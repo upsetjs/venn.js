@@ -7,9 +7,9 @@ This is a maintained fork of https://github.com/benfred/venn.js.
 A javascript library for laying out area proportional venn and euler diagrams.
 
 Details of how this library works can be found on the [blog
-post](http://www.benfrederickson.com/venn-diagrams-with-d3.js/)
+post](https://www.benfrederickson.com/venn-diagrams-with-d3.js/)
 I wrote about this. A follow up post [discusses testing strategy and
-algorithmic improvements](http://www.benfrederickson.com/better-venn-diagrams/).
+algorithmic improvements](https://www.benfrederickson.com/better-venn-diagrams/).
 
 ## Install
 
@@ -17,10 +17,26 @@ algorithmic improvements](http://www.benfrederickson.com/better-venn-diagrams/).
 npm install --save @upsetjs/venn.js
 ```
 
-### Usage
+## Usage
 
-This library depends on [d3.js](http://d3js.org/) to display the venn
-diagrams. But it can also be used as plain layout library.
+There are two modes in which this library can be used.
+First, in a managed case by using the `VennDiagram` function that will render the data using D3.
+Second, in a manual case as a layout library that is just preparing the data for you.
+
+In the following, these set data are used:
+
+```js
+const sets = [
+  { sets: ['A'], size: 12 },
+  { sets: ['B'], size: 12 },
+  { sets: ['A', 'B'], size: 2 },
+];
+```
+
+### Managed Usage
+
+This library depends on [d3.js](https://d3js.org/) to display the venn
+diagrams.
 
 ##### Simple layout
 
@@ -30,26 +46,20 @@ of all the set intersections.
 The VennDiagram object will calculate a layout that is proportional to the
 input sizes, and display it in the appropriate selection when called:
 
-```javascript
-var sets = [
-  { sets: ['A'], size: 12 },
-  { sets: ['B'], size: 12 },
-  { sets: ['A', 'B'], size: 2 },
-];
-
-var chart = venn.VennDiagram();
+```js
+const chart = venn.VennDiagram();
 d3.select('#venn').datum(sets).call(chart);
 ```
 
-[View this example](http://benfred.github.io/venn.js/examples/simple.html)
+[View this example](https://upset.js.org/venn.js/examples/simple.html)
 
 ##### Changing the Style
 
 The style of the Venn Diagram can be customized by using D3 after the diagram
 has been drawn. For instance to draw a Venn Diagram with white text and a darker fill:
 
-```javascript
-var chart = venn.VennDiagram();
+```js
+const chart = venn.VennDiagram();
 d3.select('#inverted').datum(sets).call(chart);
 
 d3.selectAll('#inverted .venn-circle path').style('fill-opacity', 0.8);
@@ -57,13 +67,13 @@ d3.selectAll('#inverted .venn-circle path').style('fill-opacity', 0.8);
 d3.selectAll('#inverted text').style('fill', 'white');
 ```
 
-[View this example, along with other possible styles](http://benfred.github.io/venn.js/examples/styled.html)
+[View this example, along with other possible styles](https://upset.js.org/venn.js/examples/styled.html)
 
-The position of text within each circle of the diagram may also be modified via the `symmeticalTextCentre` property (defaults to `false`):
+The position of text within each circle of the diagram may also be modified via the `symmetricalTextCentre` property (defaults to `false`):
 
-```javascript
+```js
 // draw a diagram with text symmetrically positioned in each circle's centre
-var chart = venn.VennDiagram({ symmetricalTextCentre: true });
+const chart = venn.VennDiagram({ symmetricalTextCentre: true });
 ```
 
 ##### Dynamic layout
@@ -71,9 +81,9 @@ var chart = venn.VennDiagram({ symmetricalTextCentre: true });
 To have a layout that reacts to a change in input, all that you need to do is
 update the dataset and call the chart again:
 
-```javascript
+```js
 // draw the initial diagram
-var chart = venn.VennDiagram();
+const chart = venn.VennDiagram();
 d3.select('#venn').datum(getSetIntersections()).call(chart);
 
 // redraw the diagram on any change in input
@@ -82,33 +92,33 @@ d3.selectAll('input').on('change', function () {
 });
 ```
 
-[View this example](http://benfred.github.io/venn.js/examples/dynamic.html)
+[View this example](https://upset.js.org/venn.js/examples/dynamic.html)
 
 ##### Making the diagram interactive
 
 Making the diagram interactive is basically the same idea as changing the style: just add event listeners to the elements in the venn diagram. To change the text size and circle colours on mouseover:
 
-```javascript
+```js
 d3.selectAll('#rings .venn-circle')
-  .on('mouseover', function (d, i) {
-    var node = d3.select(this).transition();
+  .on('mouseover', function () {
+    const node = d3.select(this).transition();
     node.select('path').style('fill-opacity', 0.2);
     node.select('text').style('font-weight', '100').style('font-size', '36px');
   })
-  .on('mouseout', function (d, i) {
-    var node = d3.select(this).transition();
+  .on('mouseout', function () {
+    const node = d3.select(this).transition();
     node.select('path').style('fill-opacity', 0);
     node.select('text').style('font-weight', '100').style('font-size', '24px');
   });
 ```
 
-[View this example](http://benfred.github.io/venn.js/examples/interactive.html)
+[View this example](https://upset.js.org/venn.js/examples/interactive.html)
 
-The colour scheme for the diagram's circles may also be modified via the `colourScheme` option, and the text within each circle can have its fill modified via the `textFill` option:
+The colour scheme for the diagram's circles may also be modified via the `colorScheme` option, and the text within each circle can have its fill modified via the `textFill` option:
 
-```javascript
-var chart = venn.VennDiagram({
-  colourScheme: ['rgb(235, 237, 238)', '#F26250'],
+```js
+const chart = venn.VennDiagram({
+  colorScheme: ['rgb(235, 237, 238)', '#F26250'],
   textFill: '#FFF',
 });
 ```
@@ -119,18 +129,18 @@ Another common case is adding a tooltip when hovering over the elements in the d
 tricky thing here is maintaining the correct Z-order so that the smallest intersection areas
 are on top, while still making the area that is being hovered over appear on top of the others:
 
-```javascript
+```js
 // draw venn diagram
-var div = d3.select('#venn');
+const div = d3.select('#venn');
 div.datum(sets).call(venn.VennDiagram());
 
 // add a tooltip
-var tooltip = d3.select('body').append('div').attr('class', 'venntooltip');
+const tooltip = d3.select('body').append('div').attr('class', 'venntooltip');
 
 // add listeners to all the groups to display tooltip on mouseover
 div
   .selectAll('g')
-  .on('mouseover', function (d, i) {
+  .on('mouseover', function (d) {
     // sort all the areas relative to the current item
     venn.sortAreas(div, d);
 
@@ -139,7 +149,7 @@ div
     tooltip.text(d.size + ' users');
 
     // highlight the current path
-    var selection = d3.select(this).transition('tooltip').duration(400);
+    const selection = d3.select(this).transition('tooltip').duration(400);
     selection
       .select('path')
       .style('stroke-width', 3)
@@ -151,9 +161,9 @@ div
     tooltip.style('left', d3.event.pageX + 'px').style('top', d3.event.pageY - 28 + 'px');
   })
 
-  .on('mouseout', function (d, i) {
+  .on('mouseout', function (d) {
     tooltip.transition().duration(400).style('opacity', 0);
-    var selection = d3.select(this).transition('tooltip').duration(400);
+    const selection = d3.select(this).transition('tooltip').duration(400);
     selection
       .select('path')
       .style('stroke-width', 0)
@@ -162,7 +172,7 @@ div
   });
 ```
 
-[View this example](http://benfred.github.io/venn.js/examples/intersection_tooltip.html)
+[View this example](https://upset.js.org/venn.js/examples/intersection_tooltip.html)
 
 ## Manual Usage
 

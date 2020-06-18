@@ -17,7 +17,7 @@
   <script src="https://d3js.org/d3.v4.min.js"></script>
   <script src="../build/venn.js"></script>
   <script>
-    var sets = [
+    const sets = [
       { sets: ['Information'], size: 12 },
       { sets: ['Overlap'], size: 12 },
       { sets: ['Circles'], size: 12 },
@@ -27,10 +27,10 @@
       { sets: ['Information', 'Overlap', 'Circles'], size: 2, label: 'Venn Diagrams' },
     ];
 
-    var chart = venn.VennDiagram().wrap(false).fontSize('16px').width(640).height(640);
+    const chart = venn.VennDiagram().wrap(false).fontSize('16px').width(640).height(640);
 
     function updateVenn(sets) {
-      var div = d3.select('#venn').datum(sets);
+      const div = d3.select('#venn').datum(sets);
       var layout = chart(div),
         circles = layout.circles;
 
