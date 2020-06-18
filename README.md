@@ -1,6 +1,6 @@
 # venn.js
 
-[![NPM Package][npm-image]][npm-url] [![Github Actions][github-actions-image]][github-actions-url]
+[![License: MIT][mit-image]][mit-url] [![NPM Package][npm-image]][npm-url] [![Github Actions][github-actions-image]][github-actions-url]
 
 This is a maintained fork of https://github.com/benfred/venn.js.
 
@@ -52,6 +52,8 @@ d3.select('#venn').datum(sets).call(chart);
 ```
 
 [View this example](https://upset.js.org/venn.js/examples/simple.html)
+
+[![Open in CodePen][codepen]](https://codepen.io/sgratzl/pen/RwrKPEe)
 
 ##### Changing the Style
 
@@ -183,7 +185,7 @@ One can render the result manually in D3 or even in HTML Canvas.
 
 ```js
 // compute layout data
-const data = venn.layout(sets, { width: 640, height: 640 });
+const data = venn.layout(sets);
 // custom data binding and rendering
 const g = d3
   .select('#venn')
@@ -206,10 +208,12 @@ g.select('path')
   .style('fill', (d, i) => (d.circles.length === 1 ? d3.schemeCategory10[i] : undefined));
 ```
 
+[![Open in CodePen][codepen]](https://codepen.io/sgratzl/pen/xxZgGeP)
+
 ### Canvas Rendering
 
 ```js
-const data = venn.layout(sets, { width: 640, height: 640 });
+const data = venn.layout(sets, { width: 600, height: 350 });
 const ctx = document.querySelector('canvas').getContext('2d');
 
 data.forEach((d, i) => {
@@ -226,6 +230,8 @@ data.forEach((d, i) => {
   ctx.fillText(d.data.sets.toString(), d.text.x, d.text.y);
 });
 ```
+
+[![Open in CodePen][codepen]](https://codepen.io/sgratzl/pen/NWxdqZW)
 
 ## License
 
@@ -251,6 +257,8 @@ yarn release
 yarn release:pre
 ```
 
+[mit-image]: https://img.shields.io/badge/License-MIT-yellow.svg
+[mit-url]: https://opensource.org/licenses/MIT
 [npm-image]: https://badge.fury.io/js/%40upsetjs%2Fvenn.js.svg
 [npm-url]: https://npmjs.org/package/@upsetjs/venn.js
 [github-actions-image]: https://github.com/upsetjs/venn.js/workflows/ci/badge.svg
