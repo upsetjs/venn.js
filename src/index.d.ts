@@ -247,10 +247,14 @@ export interface IComputeVennLayoutOptions {
   orientationOrder?: (a: ICircle, b: ICircle) => number;
 }
 
-export interface IVennLayout {
-  data: ISetOverlap;
-  circles: readonly (ICircle & { set: string; text: IPoint })[];
+export interface IVennLayout<T> {
+  data: T;
+  text: IPoint;
+  circles: readonly (ICircle & { set: string })[];
   arcs: readonly { circle: ICircle; width: number; p1: IPoint; p2: IPoint }[];
   path: string;
 }
-export function computeVennLayout(data: readonly ISetOverlap[], options?: IComputeVennLayoutOptions): IVennLayout[];
+export function computeVennLayout<T extends ISetOverlap>(
+  data: readonly T[],
+  options?: IComputeVennLayoutOptions
+): IVennLayout<T>[];

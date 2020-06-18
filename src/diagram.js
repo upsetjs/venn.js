@@ -679,8 +679,8 @@ export function intersectionAreaPath(circles) {
 
 export function computeVennLayout(data, options = {}) {
   const {
-    lossFunction = lossFunction,
-    layoutFunction = layoutFunction,
+    lossFunction: loss = lossFunction,
+    layoutFunction: layout = venn,
     normalize = true,
     orientation = Math.PI / 2,
     orientationOrder,
@@ -691,7 +691,7 @@ export function computeVennLayout(data, options = {}) {
     symmetricalTextCentre = false,
   } = options;
 
-  let solution = layoutFunction(data, { lossFunction });
+  let solution = layout(data, { lossFunction: loss });
 
   if (normalize) {
     solution = normalizeSolution(solution, orientation, orientationOrder);
@@ -708,41 +708,16 @@ export function computeVennLayout(data, options = {}) {
         x: circles[set].x,
         y: circles[set].y,
         radius: circles[set].radius,
-        text: textCentres[set],
       },
     ])
   );
-
-  function intersectionAreaPath(circles) {
-    if (circles.length === 0) {
-      return [];
-    }
-    const stats = {};
-    intersectionArea(circles, stats);
-    const arcs = stats.arcs;
-
-    if (arcs.length === 0) {
-      return [];
-    }
-    if (arcs.length == 1) {
-      const circle = arcs[0].circle;
-      return circlePath(circle.x, circle.y, circle.radius);
-    }
-    // draw path around arcs
-    const ret = ['\nM', arcs[0].p2.x, arcs[0].p2.y];
-    for (const arc of arcs) {
-      const r = arc.circle.radius;
-      const wide = arc.width > r;
-      ret.push('\nA', r, r, 0, wide ? 1 : 0, 1, arc.p1.x, arc.p1.y);
-    }
-    return ret.join(' ');
-  }
 
   return data.map((area) => {
     const circles = area.sets.map((s) => circleLookup.get(s));
     const arcs = intersectionAreaArcs(circles);
     return {
-      data,
+      data: area,
+      text: textCentres[area.sets],
       circles,
       arcs,
       path: arcsToPath(arcs),
