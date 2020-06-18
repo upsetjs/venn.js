@@ -4,8 +4,7 @@ import { intersectionArea, circleOverlap, circleCircleIntersection, distance } f
 /** given a list of set objects, and their corresponding overlaps.
 updates the (x, y, radius) attribute on each set such that their positions
 roughly correspond to the desired overlaps */
-export function venn(areas, parameters) {
-  parameters = parameters || {};
+export function venn(areas, parameters = {}) {
   parameters.maxIterations = parameters.maxIterations || 500;
   var initialLayout = parameters.initialLayout || bestInitialLayout;
   var loss = parameters.lossFunction || lossFunction;
