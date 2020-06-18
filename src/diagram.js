@@ -23,7 +23,7 @@ import { nelderMead } from 'fmin';
  * @param {object} options
  */
 export function VennDiagram(options = {}) {
-  var useViewBox = false,
+  let useViewBox = false,
     width = 600,
     height = 350,
     padding = 15,
@@ -73,26 +73,22 @@ export function VennDiagram(options = {}) {
     loss = lossFunction;
 
   function chart(selection) {
-    var data = selection.datum();
+    let data = selection.datum();
 
     // handle 0-sized sets by removing from input
-    var toremove = {};
-    data.forEach(function (datum) {
+    const toRemove = new Set();
+    data.forEach((datum) => {
       if (datum.size == 0 && datum.sets.length == 1) {
-        toremove[datum.sets[0]] = 1;
+        toRemove.add(datum.sets[0]);
       }
     });
-    data = data.filter(function (datum) {
-      return !datum.sets.some(function (set) {
-        return set in toremove;
-      });
-    });
+    data = data.filter((datum) => !datum.sets.some((set) => toRemove.has(set)));
 
-    var circles = {};
-    var textCentres = {};
+    let circles = {};
+    let textCentres = {};
 
     if (data.length > 0) {
-      var solution = layoutFunction(data, { lossFunction: loss });
+      let solution = layoutFunction(data, { lossFunction: loss });
 
       if (normalize) {
         solution = normalizeSolution(solution, orientation, orientationOrder);
@@ -104,8 +100,8 @@ export function VennDiagram(options = {}) {
 
     // Figure out the current label for each set. These can change
     // and D3 won't necessarily update (fixes https://github.com/benfred/venn.js/issues/103)
-    var labels = {};
-    data.forEach(function (datum) {
+    const labels = {};
+    data.forEach((datum) => {
       if (datum.label) {
         labels[datum.sets] = datum.label;
       }
@@ -123,18 +119,18 @@ export function VennDiagram(options = {}) {
     // create svg if not already existing
     selection.selectAll('svg').data([circles]).enter().append('svg');
 
-    var svg = selection.select('svg');
+    const svg = selection.select('svg');
 
     if (useViewBox) {
-      svg.attr('viewBox', '0 0 ' + width + ' ' + height);
+      svg.attr('viewBox', `0 0 ${width} ${height}`);
     } else {
       svg.attr('width', width).attr('height', height);
     }
 
     // to properly transition intersection areas, we need the
     // previous circles locations. load from elements
-    var previous = {},
-      hasPrevious = false;
+    const previous = {};
+    let hasPrevious = false;
     svg.selectAll('.venn-area path').each(function (d) {
       var path = select(this).attr('d');
       if (d.sets.length == 1 && path) {
@@ -145,11 +141,11 @@ export function VennDiagram(options = {}) {
 
     // interpolate intersection area paths between previous and
     // current paths
-    var pathTween = function (d) {
-      return function (t) {
-        var c = d.sets.map(function (set) {
-          var start = previous[set],
-            end = circles[set];
+    function pathTween(d) {
+      return (t) => {
+        const c = d.sets.map((set) => {
+          let start = previous[set];
+          let end = circles[set];
           if (!start) {
             start = { x: width / 2, y: height / 2, radius: 1 };
           }
@@ -164,51 +160,40 @@ export function VennDiagram(options = {}) {
         });
         return intersectionAreaPath(c);
       };
-    };
+    }
 
     // update data, joining on the set ids
-    var nodes = svg.selectAll('.venn-area').data(data, function (d) {
-      return d.sets;
-    });
+    const nodes = svg.selectAll('.venn-area').data(data, (d) => d.sets);
 
     // create new nodes
-    var enter = nodes
+    const enter = nodes
       .enter()
       .append('g')
-      .attr('class', function (d) {
-        return (
-          'venn-area venn-' + (d.sets.length == 1 ? 'circle' : 'intersection') + (d.colour ? ' venn-coloured' : '')
-        );
-      })
-      .attr('data-venn-sets', function (d) {
-        return d.sets.join('_');
-      });
+      .attr(
+        'class',
+        (d) => `venn-area venn-${d.sets.length == 1 ? 'circle' : 'intersection'}${d.colour ? ' venn-coloured' : ''}`
+      )
+      .attr('data-venn-sets', (d) => d.sets.join('_'));
 
-    var enterPath = enter.append('path'),
-      enterText = enter
-        .append('text')
-        .attr('class', 'label')
-        .text(function (d) {
-          return label(d);
-        })
-        .attr('text-anchor', 'middle')
-        .attr('dy', '.35em')
-        .attr('x', width / 2)
-        .attr('y', height / 2);
+    const enterPath = enter.append('path');
+    const enterText = enter
+      .append('text')
+      .attr('class', 'label')
+      .text((d) => label(d))
+      .attr('text-anchor', 'middle')
+      .attr('dy', '.35em')
+      .attr('x', width / 2)
+      .attr('y', height / 2);
 
     // apply minimal style if wanted
     if (styled) {
       enterPath
         .style('fill-opacity', '0')
-        .filter(function (d) {
-          return d.sets.length == 1;
-        })
-        .style('fill', function (d) {
-          return d.colour ? d.colour : colours(d.sets);
-        })
+        .filter((d) => d.sets.length == 1)
+        .style('fill', (d) => (d.colour ? d.colour : colours(d.sets)))
         .style('fill-opacity', '.25');
 
-      enterText.style('fill', function (d) {
+      enterText.style('fill', (d) => {
         if (d.colour) {
           return '#FFF';
         }
@@ -220,39 +205,25 @@ export function VennDiagram(options = {}) {
     }
 
     // update existing, using pathTween if necessary
-    var update = selection;
+    let update = selection;
     if (hasPrevious) {
       update = selection.transition('venn').duration(duration);
       update.selectAll('path').attrTween('d', pathTween);
     } else {
-      update.selectAll('path').attr('d', function (d) {
-        return intersectionAreaPath(
-          d.sets.map(function (set) {
-            return circles[set];
-          })
-        );
-      });
+      update.selectAll('path').attr('d', (d) => intersectionAreaPath(d.sets.map((set) => circles[set])));
     }
 
-    var updateText = update
+    const updateText = update
       .selectAll('text')
-      .filter(function (d) {
-        return d.sets in textCentres;
-      })
-      .text(function (d) {
-        return label(d);
-      })
-      .attr('x', function (d) {
-        return Math.floor(textCentres[d.sets].x);
-      })
-      .attr('y', function (d) {
-        return Math.floor(textCentres[d.sets].y);
-      });
+      .filter((d) => d.sets in textCentres)
+      .text((d) => label(d))
+      .attr('x', (d) => Math.floor(textCentres[d.sets].x))
+      .attr('y', (d) => Math.floor(textCentres[d.sets].y));
 
     if (wrap) {
       if (hasPrevious) {
         // d3 4.0 uses 'on' for events on transitions,
-        // but d3 3.0 used 'each' instead. switch appropiately
+        // but d3 3.0 used 'each' instead. switch appropriately
         if ('on' in updateText) {
           updateText.on('end', wrapText(circles, label));
         } else {
@@ -264,10 +235,10 @@ export function VennDiagram(options = {}) {
     }
 
     // remove old
-    var exit = nodes.exit().transition('venn').duration(duration).remove();
+    const exit = nodes.exit().transition('venn').duration(duration).remove();
     exit.selectAll('path').attrTween('d', pathTween);
 
-    var exitText = exit
+    const exitText = exit
       .selectAll('text')
       .attr('x', width / 2)
       .attr('y', height / 2);
@@ -280,7 +251,7 @@ export function VennDiagram(options = {}) {
       exitText.style('font-size', '0px');
     }
 
-    return { circles: circles, textCentres: textCentres, nodes: nodes, enter: enter, update: update, exit: exit };
+    return { circles, textCentres, nodes, enter, update, exit };
   }
 
   chart.wrap = function (_) {
@@ -374,6 +345,7 @@ export function VennDiagram(options = {}) {
 
   return chart;
 }
+
 // sometimes text doesn't fit inside the circle, if thats the case lets wrap
 // the text here such that it fits
 // todo: looks like this might be merged into d3 (
@@ -383,26 +355,28 @@ export function VennDiagram(options = {}) {
 // this seems to be one of those things that should be easy but isn't
 export function wrapText(circles, labeller) {
   return function () {
-    var text = select(this),
-      data = text.datum(),
-      width = circles[data.sets[0]].radius || 50,
-      label = labeller(data) || '';
+    const text = select(this);
+    const data = text.datum();
+    const width = circles[data.sets[0]].radius || 50;
+    const label = labeller(data) || '';
 
-    var words = label.split(/\s+/).reverse(),
-      maxLines = 3,
-      minChars = (label.length + words.length) / maxLines,
-      word = words.pop(),
-      line = [word],
-      joined,
-      lineNumber = 0,
-      lineHeight = 1.1, // ems
-      tspan = text.text(null).append('tspan').text(word);
+    const words = label.split(/\s+/).reverse();
+    const maxLines = 3;
+    const minChars = (label.length + words.length) / maxLines;
+
+    let word = words.pop();
+    const line = [word];
+    let lineNumber = 0;
+    const lineHeight = 1.1; // ems
+    let tspan = text.text(null).append('tspan').text(word);
 
     while (true) {
       word = words.pop();
-      if (!word) break;
+      if (!word) {
+        break;
+      }
       line.push(word);
-      joined = line.join(' ');
+      const joined = line.join(' ');
       tspan.text(joined);
       if (joined.length > minChars && tspan.node().getComputedTextLength() > width) {
         line.pop();
@@ -413,17 +387,15 @@ export function wrapText(circles, labeller) {
       }
     }
 
-    var initial = 0.35 - (lineNumber * lineHeight) / 2,
-      x = text.attr('x'),
-      y = text.attr('y');
+    const initial = 0.35 - (lineNumber * lineHeight) / 2;
+    const x = text.attr('x');
+    const y = text.attr('y');
 
     text
       .selectAll('tspan')
       .attr('x', x)
       .attr('y', y)
-      .attr('dy', function (d, i) {
-        return initial + i * lineHeight + 'em';
-      });
+      .attr('dy', (_, i) => `${initial + i * lineHeight}em`);
   };
 }
 
@@ -453,26 +425,33 @@ function circleMargin(current, interior, exterior) {
   return margin;
 }
 
-// compute the center of some circles by maximizing the margin of
-// the center point relative to the circles (interior) after subtracting
-// nearby circles (exterior)
+/**
+ * compute the center of some circles by maximizing the margin of
+ * the center point relative to the circles (interior) after subtracting
+ * nearby circles (exterior)
+ * @param {readonly {x: number, y: number, radius: number}[]} interior
+ * @param {readonly {x: number, y: number, radius: number}[]} exterior
+ * @param {boolean} symmetricalTextCentre
+ * @returns {{x:number, y: number}}
+ */
 export function computeTextCentre(interior, exterior, symmetricalTextCentre) {
   // get an initial estimate by sampling around the interior circles
   // and taking the point with the biggest margin
-  var points = [],
-    i;
-  for (i = 0; i < interior.length; ++i) {
-    var c = interior[i];
+  /** @type {{x: number, y: number}[]} */
+  const points = [];
+  for (const c of interior) {
     points.push({ x: c.x, y: c.y });
     points.push({ x: c.x + c.radius / 2, y: c.y });
     points.push({ x: c.x - c.radius / 2, y: c.y });
     points.push({ x: c.x, y: c.y + c.radius / 2 });
     points.push({ x: c.x, y: c.y - c.radius / 2 });
   }
-  var initial = points[0],
-    margin = circleMargin(points[0], interior, exterior);
-  for (i = 1; i < points.length; ++i) {
-    var m = circleMargin(points[i], interior, exterior);
+
+  let initial = points[0];
+  let margin = circleMargin(points[0], interior, exterior);
+
+  for (let i = 1; i < points.length; ++i) {
+    const m = circleMargin(points[i], interior, exterior);
     if (m >= margin) {
       initial = points[i];
       margin = m;
@@ -480,82 +459,77 @@ export function computeTextCentre(interior, exterior, symmetricalTextCentre) {
   }
 
   // maximize the margin numerically
-  var solution = nelderMead(
-    function (p) {
-      return -1 * circleMargin({ x: p[0], y: p[1] }, interior, exterior);
-    },
+  const solution = nelderMead(
+    (p) => -1 * circleMargin({ x: p[0], y: p[1] }, interior, exterior),
     [initial.x, initial.y],
     { maxIterations: 500, minErrorDelta: 1e-10 }
   ).x;
-  var ret = { x: symmetricalTextCentre ? 0 : solution[0], y: solution[1] };
+
+  const ret = { x: symmetricalTextCentre ? 0 : solution[0], y: solution[1] };
 
   // check solution, fallback as needed (happens if fully overlapped
   // etc)
-  var valid = true;
-  for (i = 0; i < interior.length; ++i) {
-    if (distance(ret, interior[i]) > interior[i].radius) {
+  let valid = true;
+  for (const i of interior) {
+    if (distance(ret, i) > i.radius) {
       valid = false;
       break;
     }
   }
 
-  for (i = 0; i < exterior.length; ++i) {
-    if (distance(ret, exterior[i]) < exterior[i].radius) {
+  for (const e of exterior) {
+    if (distance(ret, e) < e.radius) {
       valid = false;
       break;
     }
   }
-
-  if (!valid) {
-    if (interior.length == 1) {
-      ret = { x: interior[0].x, y: interior[0].y };
-    } else {
-      var areaStats = {};
-      intersectionArea(interior, areaStats);
-
-      if (areaStats.arcs.length === 0) {
-        ret = { x: 0, y: -1000, disjoint: true };
-      } else if (areaStats.arcs.length == 1) {
-        ret = { x: areaStats.arcs[0].circle.x, y: areaStats.arcs[0].circle.y };
-      } else if (exterior.length) {
-        // try again without other circles
-        ret = computeTextCentre(interior, []);
-      } else {
-        // take average of all the points in the intersection
-        // polygon. this should basically never happen
-        // and has some issues:
-        // https://github.com/benfred/venn.js/issues/48#issuecomment-146069777
-        ret = getCenter(
-          areaStats.arcs.map(function (a) {
-            return a.p1;
-          })
-        );
-      }
-    }
+  if (valid) {
+    return ret;
   }
 
-  return ret;
+  if (interior.length == 1) {
+    return { x: interior[0].x, y: interior[0].y };
+  }
+  const areaStats = {};
+  intersectionArea(interior, areaStats);
+
+  if (areaStats.arcs.length === 0) {
+    return { x: 0, y: -1000, disjoint: true };
+  }
+  if (areaStats.arcs.length == 1) {
+    return { x: areaStats.arcs[0].circle.x, y: areaStats.arcs[0].circle.y };
+  }
+  if (exterior.length) {
+    // try again without other circles
+    return computeTextCentre(interior, []);
+  }
+  // take average of all the points in the intersection
+  // polygon. this should basically never happen
+  // and has some issues:
+  // https://github.com/benfred/venn.js/issues/48#issuecomment-146069777
+  return getCenter(areaStats.arcs.map((a) => a.p1));
 }
 
 // given a dictionary of {setid : circle}, returns
 // a dictionary of setid to list of circles that completely overlap it
 function getOverlappingCircles(circles) {
-  var ret = {},
-    circleids = [];
-  for (var circleid in circles) {
-    circleids.push(circleid);
+  const ret = {};
+  const circleids = Object.keys(circles);
+  for (const circleid of circleids) {
     ret[circleid] = [];
   }
-  for (var i = 0; i < circleids.length; i++) {
-    var a = circles[circleids[i]];
-    for (var j = i + 1; j < circleids.length; ++j) {
-      var b = circles[circleids[j]],
-        d = distance(a, b);
+  for (let i = 0; i < circleids.length; i++) {
+    const ci = circleids[i];
+    const a = circles[ci];
+    for (let j = i + 1; j < circleids.length; ++j) {
+      const cj = circleids[j];
+      const b = circles[cj];
+      const d = distance(a, b);
 
       if (d + b.radius <= a.radius + 1e-10) {
-        ret[circleids[j]].push(circleids[i]);
+        ret[cj].push(ci);
       } else if (d + a.radius <= b.radius + 1e-10) {
-        ret[circleids[i]].push(circleids[j]);
+        ret[ci].push(cj);
       }
     }
   }
@@ -565,31 +539,32 @@ function getOverlappingCircles(circles) {
 export function computeTextCentres(circles, areas, symmetricalTextCentre) {
   const ret = {};
   const overlapped = getOverlappingCircles(circles);
-  for (var i = 0; i < areas.length; ++i) {
-    var area = areas[i].sets,
-      areaids = {},
-      exclude = {};
-    for (var j = 0; j < area.length; ++j) {
+  for (let i = 0; i < areas.length; ++i) {
+    const area = areas[i].sets;
+    const areaids = {};
+    const exclude = {};
+
+    for (let j = 0; j < area.length; ++j) {
       areaids[area[j]] = true;
-      var overlaps = overlapped[area[j]];
+      const overlaps = overlapped[area[j]];
       // keep track of any circles that overlap this area,
       // and don't consider for purposes of computing the text
       // centre
-      for (var k = 0; k < overlaps.length; ++k) {
+      for (let k = 0; k < overlaps.length; ++k) {
         exclude[overlaps[k]] = true;
       }
     }
 
-    var interior = [],
-      exterior = [];
-    for (var setid in circles) {
+    const interior = [];
+    const exterior = [];
+    for (let setid in circles) {
       if (setid in areaids) {
         interior.push(circles[setid]);
       } else if (!(setid in exclude)) {
         exterior.push(circles[setid]);
       }
     }
-    var centre = computeTextCentre(interior, exterior, symmetricalTextCentre);
+    const centre = computeTextCentre(interior, exterior, symmetricalTextCentre);
     ret[area] = centre;
     if (centre.disjoint && areas[i].size > 0) {
       console.log('WARNING: area ' + area + ' not represented on screen');
@@ -606,9 +581,9 @@ export function sortAreas(div, relativeTo) {
   const overlaps = getOverlappingCircles(div.selectAll('svg').datum());
   const exclude = new Set();
   for (const check of relativeTo.sets) {
-    for (var setid in overlaps) {
-      var overlap = overlaps[setid];
-      for (var j = 0; j < overlap.length; ++j) {
+    for (let setid in overlaps) {
+      const overlap = overlaps[setid];
+      for (let j = 0; j < overlap.length; ++j) {
         if (overlap[j] == check) {
           exclude.add(setid);
           break;
@@ -645,7 +620,7 @@ export function sortAreas(div, relativeTo) {
  * @param {number} x
  * @param {number} y
  * @param {number} r
- * @returns {number}
+ * @returns {string}
  */
 export function circlePath(x, y, r) {
   const ret = [];
