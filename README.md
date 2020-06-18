@@ -1,5 +1,8 @@
-venn.js [![Build Status](https://travis-ci.org/benfred/venn.js.svg?branch=master)](https://travis-ci.org/benfred/venn.js) [![Downloads](https://img.shields.io/npm/dm/venn.js.svg)](https://www.npmjs.com/package/venn.js)
-=======
+# venn.js 
+
+[![NPM Package][npm-image]][npm-url] [![Github Actions][github-actions-image]][github-actions-url]
+
+This is a maintained fork of https://github.com/benfred/venn.js.
 
 A javascript library for laying out area proportional venn and euler diagrams.
 
@@ -9,9 +12,11 @@ I wrote about this. A follow up post [discusses testing strategy and
 algorithmic improvements](http://www.benfrederickson.com/better-venn-diagrams/).
 
 
-### Installing
+## Install
 
-If you use NPM, `npm install venn.js`. Otherwise, download the [latest release](https://github.com/benfred/venn.js/releases/latest).
+```bash
+npm install --save @upsetjs/venn.js
+```
 
 
 ### Usage
@@ -37,7 +42,7 @@ var chart = venn.VennDiagram()
 d3.select("#venn").datum(sets).call(chart);
 ```
 
-[View this example ](http://benfred.github.io/venn.js/examples/simple.html)
+[View this example](http://benfred.github.io/venn.js/examples/simple.html)
 
 ##### Changing the Style
 
@@ -160,4 +165,28 @@ div.selectAll("g")
 ```
 [View this example](http://benfred.github.io/venn.js/examples/intersection_tooltip.html)
 
+## License
+
 Released under the MIT License.
+
+## Development Environment
+
+```sh
+npm i -g yarn
+yarn set version 2
+yarn
+yarn pnpify --sdk
+```
+
+### Building
+
+```sh
+yarn install
+yarn build
+```
+
+[npm-image]: https://badge.fury.io/js/chartjs-chart-pcp.svg
+[npm-url]: https://npmjs.org/package/chartjs-chart-pcp
+[github-actions-image]: https://github.com/sgratzl/chartjs-chart-pcp/workflows/ci/badge.svg
+[github-actions-url]: https://github.com/sgratzl/chartjs-chart-pcp/actions
+[codepen]: https://img.shields.io/badge/CodePen-open-blue?logo=codepen
