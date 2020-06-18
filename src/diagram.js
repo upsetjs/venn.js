@@ -596,16 +596,15 @@ export function computeTextCentres(circles, areas, symmetricalTextCentre) {
 // a particular area is on top (relativeTo) - and
 // all other areas are so that the smallest areas are on top
 export function sortAreas(div, relativeTo) {
-  // figure out sets that are completly overlapped by relativeTo
-  var overlaps = getOverlappingCircles(div.selectAll('svg').datum());
-  var exclude = {};
-  for (var i = 0; i < relativeTo.sets.length; ++i) {
-    var check = relativeTo.sets[i];
+  // figure out sets that are completely overlapped by relativeTo
+  const overlaps = getOverlappingCircles(div.selectAll('svg').datum());
+  const exclude = new Set();
+  for (const check of relativeTo.sets) {
     for (var setid in overlaps) {
       var overlap = overlaps[setid];
       for (var j = 0; j < overlap.length; ++j) {
         if (overlap[j] == check) {
-          exclude[setid] = true;
+          exclude.add(setid);
           break;
         }
       }
@@ -614,16 +613,11 @@ export function sortAreas(div, relativeTo) {
 
   // checks that all sets are in exclude;
   function shouldExclude(sets) {
-    for (var i = 0; i < sets.length; ++i) {
-      if (!(sets[i] in exclude)) {
-        return false;
-      }
-    }
-    return true;
+    return sets.every((set) => !exclude.has(set));
   }
 
   // need to sort div's so that Z order is correct
-  div.selectAll('g').sort(function (a, b) {
+  div.selectAll('g').sort((a, b) => {
     // highest order set intersections first
     if (a.sets.length != b.sets.length) {
       return a.sets.length - b.sets.length;
@@ -642,7 +636,7 @@ export function sortAreas(div, relativeTo) {
 }
 
 export function circlePath(x, y, r) {
-  var ret = [];
+  const ret = [];
   ret.push('\nM', x, y);
   ret.push('\nm', -r, 0);
   ret.push('\na', r, r, 0, 1, 0, r * 2, 0);
@@ -652,30 +646,29 @@ export function circlePath(x, y, r) {
 
 // inverse of the circlePath function, returns a circle object from an svg path
 export function circleFromPath(path) {
-  var tokens = path.split(' ');
-  return { x: parseFloat(tokens[1]), y: parseFloat(tokens[2]), radius: -parseFloat(tokens[4]) };
+  const tokens = path.split(' ');
+  return { x: Number.parseFloat(tokens[1]), y: Number.parseFloat(tokens[2]), radius: -Number.parseFloat(tokens[4]) };
 }
 
 /** returns a svg path of the intersection area of a bunch of circles */
 export function intersectionAreaPath(circles) {
-  var stats = {};
+  const stats = {};
   intersectionArea(circles, stats);
-  var arcs = stats.arcs;
+  const arcs = stats.arcs;
 
   if (arcs.length === 0) {
     return 'M 0 0';
-  } else if (arcs.length == 1) {
-    var circle = arcs[0].circle;
-    return circlePath(circle.x, circle.y, circle.radius);
-  } else {
-    // draw path around arcs
-    var ret = ['\nM', arcs[0].p2.x, arcs[0].p2.y];
-    for (var i = 0; i < arcs.length; ++i) {
-      var arc = arcs[i],
-        r = arc.circle.radius,
-        wide = arc.width > r;
-      ret.push('\nA', r, r, 0, wide ? 1 : 0, 1, arc.p1.x, arc.p1.y);
-    }
-    return ret.join(' ');
   }
+  if (arcs.length == 1) {
+    const circle = arcs[0].circle;
+    return circlePath(circle.x, circle.y, circle.radius);
+  }
+  // draw path around arcs
+  const ret = ['\nM', arcs[0].p2.x, arcs[0].p2.y];
+  for (const arc of arcs) {
+    const r = arc.circle.radius;
+    const wide = arc.width > r;
+    ret.push('\nA', r, r, 0, wide ? 1 : 0, 1, arc.p1.x, arc.p1.y);
+  }
+  return ret.join(' ');
 }

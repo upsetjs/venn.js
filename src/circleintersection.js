@@ -1,7 +1,20 @@
 const SMALL = 1e-10;
 
-/** Returns the intersection area of a bunch of circles (where each circle
- is an object having an x,y and radius property) */
+/**
+ * Returns the intersection area of a bunch of circles (where each circle
+ * is an object having an x,y and radius property)
+ * @param {ReadonlyArray<{x: number, y: number, radius: number}>} circles
+ * @param {undefined | { area?: number, arcArea?: number, polygonArea?: number, arcs?: ReadonlyArray<{ circle: {x: number, y: number, radius: number}, width: number, p1: {x: number, y: number}, p2: {x: number, y: number} }>, innerPoints: ReadonlyArray<{
+    x: number;
+    y: number;
+    parentIndex: [number, number];
+}>, intersectionPoints: ReadonlyArray<{
+  x: number;
+  y: number;
+  parentIndex: [number, number];
+}> }} stats
+ * @returns {number}
+ */
 export function intersectionArea(circles, stats) {
   // get all the intersection points of the circles
   const intersectionPoints = getIntersectionPoints(circles);
@@ -11,6 +24,7 @@ export function intersectionArea(circles, stats) {
 
   let arcArea = 0;
   let polygonArea = 0;
+  /** @type {{ circle: {x: number, y: number, radius: number}, width: number, p1: {x: number, y: number}, p2: {x: number, y: number} }[]} */
   const arcs = [];
 
   // if we have intersection points that are within all the circles,
@@ -36,6 +50,7 @@ export function intersectionArea(circles, stats) {
 
       // updating the arc area is a little more involved
       const midPoint = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+      /** @types null | { circle: {x: number, y: number, radius: number}, width: number, p1: {x: number, y: number}, p2: {x: number, y: number} } */
       let arc = null;
 
       for (let j = 0; j < p1.parentIndex.length; ++j) {
@@ -67,7 +82,7 @@ export function intersectionArea(circles, stats) {
 
           // pick the circle whose arc has the smallest width
           if (arc == null || arc.width > width) {
-            arc = { circle: circle, width: width, p1: p1, p2: p2 };
+            arc = { circle, width, p1: p1, p2: p2 };
           }
         }
       }
@@ -125,24 +140,28 @@ export function intersectionArea(circles, stats) {
   return arcArea + polygonArea;
 }
 
-/** returns whether a point is contained by all of a list of circles */
+/**
+ * returns whether a point is contained by all of a list of circles
+ * @param {{x: number, y: number}} point
+ * @param {ReadonlyArray<{x: number, y: number, radius: number}>} circles
+ * @returns {boolean}
+ */
 export function containedInCircles(point, circles) {
-  for (let i = 0; i < circles.length; ++i) {
-    if (distance(point, circles[i]) > circles[i].radius + SMALL) {
-      return false;
-    }
-  }
-  return true;
+  return circles.every((circle) => distance(point, circle) < circle.radius + SMALL);
 }
 
-/** Gets all intersection points between a bunch of circles */
+/**
+ * Gets all intersection points between a bunch of circles
+ * @param {ReadonlyArray<{x: number, y: number, radius: number}>} circles
+ * @returns {ReadonlyArray<{x: number, y: number, parentIndex: [number, number]}>}
+ */
 function getIntersectionPoints(circles) {
+  /** @type {{x: number, y: number, parentIndex: [number, number]}[]} */
   const ret = [];
   for (let i = 0; i < circles.length; ++i) {
     for (let j = i + 1; j < circles.length; ++j) {
       const intersect = circleCircleIntersection(circles[i], circles[j]);
-      for (let k = 0; k < intersect.length; ++k) {
-        let p = intersect[k];
+      for (const p of intersect) {
         p.parentIndex = [i, j];
         ret.push(p);
       }
@@ -151,19 +170,35 @@ function getIntersectionPoints(circles) {
   return ret;
 }
 
-/** Circular segment area calculation. See http://mathworld.wolfram.com/CircularSegment.html */
+/**
+ * Circular segment area calculation. See http://mathworld.wolfram.com/CircularSegment.html
+ * @param {number} r
+ * @param {number} width
+ * @returns {number}
+ **/
 export function circleArea(r, width) {
   return r * r * Math.acos(1 - width / r) - (r - width) * Math.sqrt(width * (2 * r - width));
 }
 
-/** euclidean distance between two points */
+/**
+ * euclidean distance between two points
+ * @param {{x: number, y: number}} p1
+ * @param {{x: number, y: number}} p2
+ * @returns {number}
+ **/
 export function distance(p1, p2) {
   return Math.sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
 }
 
-/** Returns the overlap area of two circles of radius r1 and r2 - that
-have their centers separated by distance d. Simpler faster
-circle intersection for only two circles */
+/**
+ * Returns the overlap area of two circles of radius r1 and r2 - that
+ * have their centers separated by distance d. Simpler faster
+ * circle intersection for only two circles
+ * @param {number} r1
+ * @param {number} r2
+ * @param {number} d
+ * @returns {number}
+ */
 export function circleOverlap(r1, r2, d) {
   // no overlap
   if (d >= r1 + r2) {
@@ -180,10 +215,15 @@ export function circleOverlap(r1, r2, d) {
   return circleArea(r1, w1) + circleArea(r2, w2);
 }
 
-/** Given two circles (containing a x/y/radius attributes),
-returns the intersecting points if possible.
-note: doesn't handle cases where there are infinitely many
-intersection points (circles are equivalent):, or only one intersection point*/
+/**
+ * Given two circles (containing a x/y/radius attributes),
+ * returns the intersecting points if possible
+ * note: doesn't handle cases where there are infinitely many
+ * intersection points (circles are equivalent):, or only one intersection point
+ * @param {{x: number, y: number, radius: number}} p1
+ * @param {{x: number, y: number, radius: number}} p2
+ * @returns {ReadonlyArray<{x: number, y: number}>}
+ **/
 export function circleCircleIntersection(p1, p2) {
   const d = distance(p1, p2);
   const r1 = p1.radius;
@@ -207,12 +247,16 @@ export function circleCircleIntersection(p1, p2) {
   ];
 }
 
-/** Returns the center of a bunch of points */
+/**
+ * Returns the center of a bunch of points
+ * @param {ReadonlyArray<{x: number, y: number}>} points
+ * @returns {{x: number, y: number}}
+ */
 export function getCenter(points) {
   const center = { x: 0, y: 0 };
-  for (let i = 0; i < points.length; ++i) {
-    center.x += points[i].x;
-    center.y += points[i].y;
+  for (const point of points) {
+    center.x += point.x;
+    center.y += point.y;
   }
   center.x /= points.length;
   center.y /= points.length;
