@@ -6,6 +6,7 @@ export {
   normalizeSolution,
   bestInitialLayout,
   lossFunction,
+  logRatioLossFunction,
   disjointCluster,
   distanceFromIntersectArea,
 } from './layout';

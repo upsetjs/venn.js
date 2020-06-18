@@ -57,6 +57,8 @@ export function greedyLayout(areas: readonly ISetOverlap[], params?: any): ISolu
  */
 export function lossFunction(circles: ISolution, areas: readonly ISetOverlap[]): number;
 
+export function logRatioLossFunction(circles: ISolution, areas: readonly ISetOverlap[]): number;
+
 export function disjointCluster(circles: ICircle[]): ICircle[][];
 
 export function normalizeSolution(
@@ -225,6 +227,8 @@ export interface IVennDiagram {
   orientationOrder(v: null | ((a: ICircle, b: ICircle) => number)): this;
 
   lossFunction(): typeof lossFunction;
+  lossFunction(v: 'logRatio'): this;
+  lossFunction(v: 'default'): this;
   lossFunction(v: typeof lossFunction): this;
 }
 
@@ -249,7 +253,7 @@ export interface IComputeVennLayoutOptions {
   padding?: number;
   normalize?: boolean;
   layoutFunction?: typeof venn;
-  lossFunction?: typeof lossFunction;
+  lossFunction?: typeof lossFunction | 'logRatio';
   scaleToFit?: boolean;
   orientation?: number;
   orientationOrder?: (a: ICircle, b: ICircle) => number;

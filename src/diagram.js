@@ -1,4 +1,4 @@
-import { venn, lossFunction, normalizeSolution, scaleSolution } from './layout';
+import { venn, lossFunction, logRatioLossFunction, normalizeSolution, scaleSolution } from './layout';
 import { intersectionArea, distance, getCenter } from './circleintersection';
 import { nelderMead } from 'fmin';
 
@@ -354,7 +354,7 @@ export function VennDiagram(options = {}) {
 
   chart.lossFunction = function (_) {
     if (!arguments.length) return loss;
-    loss = _;
+    loss = _ === 'default' ? lossFunction : _ === 'logRatio' ? logRatioLossFunction : _;
     return chart;
   };
 
@@ -702,7 +702,7 @@ export function intersectionAreaPath(circles) {
 
 export function layout(data, options = {}) {
   const {
-    lossFunction: loss = lossFunction,
+    lossFunction: loss,
     layoutFunction: layout = venn,
     normalize = true,
     orientation = Math.PI / 2,
@@ -714,7 +714,9 @@ export function layout(data, options = {}) {
     symmetricalTextCentre = false,
   } = options;
 
-  let solution = layout(data, { lossFunction: loss });
+  let solution = layout(data, {
+    lossFunction: loss === 'default' || !loss ? lossFunction : loss === 'logRatio' ? logRatioLossFunction : loss,
+  });
 
   if (normalize) {
     solution = normalizeSolution(solution, orientation, orientationOrder);

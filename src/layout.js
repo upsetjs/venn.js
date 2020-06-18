@@ -462,6 +462,31 @@ export function lossFunction(circles, overlaps) {
   return output;
 }
 
+export function logRatioLossFunction(circles, overlaps) {
+  let output = 0;
+
+  for (const area of overlaps) {
+    if (area.sets.length === 1) {
+      continue;
+    }
+    /** @type {number} */
+    let overlap;
+    if (area.sets.length === 2) {
+      const left = circles[area.sets[0]];
+      const right = circles[area.sets[1]];
+      overlap = circleOverlap(left.radius, right.radius, distance(left, right));
+    } else {
+      overlap = intersectionArea(area.sets.map((d) => circles[d]));
+    }
+
+    const weight = area.weight != null ? area.weight : 1.0;
+    const differenceFromIdeal = Math.log((overlap + 1) / (area.size + 1));
+    output += weight * differenceFromIdeal * differenceFromIdeal;
+  }
+
+  return output;
+}
+
 /**
  * orientates a bunch of circles to point in orientation
  * @param {{x :number, y: number, radius: number}[]} circles
