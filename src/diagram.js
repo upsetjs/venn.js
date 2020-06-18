@@ -641,16 +641,16 @@ export function circleFromPath(path) {
   return { x: Number.parseFloat(tokens[1]), y: Number.parseFloat(tokens[2]), radius: -Number.parseFloat(tokens[4]) };
 }
 
-/**
- * returns a svg path of the intersection area of a bunch of circles
- * @param {ReadonlyArray<{x: number, y: number, radius: number}>} circles
- * @returns {string}
- */
-export function intersectionAreaPath(circles) {
+function intersectionAreaArcs(circles) {
+  if (circles.length === 0) {
+    return [];
+  }
   const stats = {};
   intersectionArea(circles, stats);
-  const arcs = stats.arcs;
+  return stats.arcs;
+}
 
+function arcsToPath(arcs) {
   if (arcs.length === 0) {
     return 'M 0 0';
   }
@@ -666,4 +666,86 @@ export function intersectionAreaPath(circles) {
     ret.push('\nA', r, r, 0, wide ? 1 : 0, 1, arc.p1.x, arc.p1.y);
   }
   return ret.join(' ');
+}
+
+/**
+ * returns a svg path of the intersection area of a bunch of circles
+ * @param {ReadonlyArray<{x: number, y: number, radius: number}>} circles
+ * @returns {string}
+ */
+export function intersectionAreaPath(circles) {
+  return arcsToPath(intersectionAreaArcs(circles));
+}
+
+export function computeVennLayout(data, options = {}) {
+  const {
+    lossFunction = lossFunction,
+    layoutFunction = layoutFunction,
+    normalize = true,
+    orientation = Math.PI / 2,
+    orientationOrder,
+    width = 600,
+    height = 350,
+    padding = 15,
+    scaleToFit = false,
+    symmetricalTextCentre = false,
+  } = options;
+
+  let solution = layoutFunction(data, { lossFunction });
+
+  if (normalize) {
+    solution = normalizeSolution(solution, orientation, orientationOrder);
+  }
+
+  const circles = scaleSolution(solution, width, height, padding, scaleToFit);
+  const textCentres = computeTextCentres(circles, data, symmetricalTextCentre);
+
+  const circleLookup = new Map(
+    Object.keys(circles).map((set) => [
+      set,
+      {
+        set,
+        x: circles[set].x,
+        y: circles[set].y,
+        radius: circles[set].radius,
+        text: textCentres[set],
+      },
+    ])
+  );
+
+  function intersectionAreaPath(circles) {
+    if (circles.length === 0) {
+      return [];
+    }
+    const stats = {};
+    intersectionArea(circles, stats);
+    const arcs = stats.arcs;
+
+    if (arcs.length === 0) {
+      return [];
+    }
+    if (arcs.length == 1) {
+      const circle = arcs[0].circle;
+      return circlePath(circle.x, circle.y, circle.radius);
+    }
+    // draw path around arcs
+    const ret = ['\nM', arcs[0].p2.x, arcs[0].p2.y];
+    for (const arc of arcs) {
+      const r = arc.circle.radius;
+      const wide = arc.width > r;
+      ret.push('\nA', r, r, 0, wide ? 1 : 0, 1, arc.p1.x, arc.p1.y);
+    }
+    return ret.join(' ');
+  }
+
+  return data.map((area) => {
+    const circles = area.sets.map((s) => circleLookup.get(s));
+    const arcs = intersectionAreaArcs(circles);
+    return {
+      data,
+      circles,
+      arcs,
+      path: arcsToPath(arcs),
+    };
+  });
 }

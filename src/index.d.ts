@@ -1,6 +1,6 @@
 import { Selection } from 'd3-selection';
 
-export interface ISet {
+export interface ISetOverlap {
   sets: readonly string[];
   size: number;
   weight?: number;
@@ -30,7 +30,7 @@ export interface ISolution {
  * updates the(x, y, radius) attribute on each set such that their positions
  * roughly correspond to the desired overlaps
  */
-export function venn(sets: readonly ISet[], parameters?: any): ISolution;
+export function venn(areas: readonly ISetOverlap[], parameters?: any): ISolution;
 
 /**
  * Returns the distance necessary for two circles of radius r1 + r2 to
@@ -41,21 +41,21 @@ export function distanceFromIntersectArea(r1: number, r2: number, overlap: numbe
 /**
  * takes the best working variant of either constrained MDS or greedy
  */
-export function bestInitialLayout(areas: readonly ISet[], params?: any): ISolution;
+export function bestInitialLayout(areas: readonly ISetOverlap[], params?: any): ISolution;
 
 /**
  * Lays out a Venn diagram greedily, going from most overlapped sets to
  * least overlapped, attempting to position each new set such that the
  * overlapping areas to already positioned sets are basically right
  */
-export function greedyLayout(areas: readonly ISet[], params?: any): ISolution;
+export function greedyLayout(areas: readonly ISetOverlap[], params?: any): ISolution;
 
 /**
  * Given a bunch of sets, and the desired overlaps between these sets - computes
  * the distance from the actual overlaps to the desired overlaps. Note that
  * this method ignores overlaps of more than 2 circles
  */
-export function lossFunction(circles: ISolution, overlaps: readonly ISet[]): number;
+export function lossFunction(circles: ISolution, areas: readonly ISetOverlap[]): number;
 
 export function disjointCluster(circles: ICircle[]): ICircle[][];
 
@@ -146,7 +146,7 @@ export function computeTextCentre(
 
 export function computeTextCentres(
   circles: ISolution,
-  areas: readonly ISet[],
+  areas: readonly ISetOverlap[],
   symmetricalTextCentre?: boolean
 ): { [set: string]: IPoint };
 
@@ -174,13 +174,13 @@ export interface IVennDiagramOptions {
 }
 
 export interface IVennDiagram {
-  (selection: Selection<HTMLElement, readonly ISet[], unknown, unknown>): {
+  (selection: Selection<HTMLElement, readonly ISetOverlap[], unknown, unknown>): {
     circles: ISolution;
     textCentres: { [set: string]: IPoint };
-    nodes: Selection<SVGGElement, ISet, unknown, unknown>;
-    enter: Selection<SVGGElement, ISet, unknown, unknown>;
-    update: Selection<SVGGElement, ISet, unknown, unknown>;
-    exit: Selection<SVGGElement, ISet, unknown, unknown>;
+    nodes: Selection<SVGGElement, ISetOverlap, unknown, unknown>;
+    enter: Selection<SVGGElement, ISetOverlap, unknown, unknown>;
+    update: Selection<SVGGElement, ISetOverlap, unknown, unknown>;
+    exit: Selection<SVGGElement, ISetOverlap, unknown, unknown>;
   };
 
   wrap(): boolean;
@@ -234,3 +234,23 @@ export interface IVennDiagram {
  * The color to be applied to the text within each circle.
  */
 export function VennDiagram(options?: IVennDiagramOptions): IVennDiagram;
+
+export interface IComputeVennLayoutOptions {
+  width?: number;
+  height?: number;
+  padding?: number;
+  normalize?: boolean;
+  layoutFunction?: typeof venn;
+  lossFunction?: typeof lossFunction;
+  scaleToFit?: boolean;
+  orientation?: number;
+  orientationOrder?: (a: ICircle, b: ICircle) => number;
+}
+
+export interface IVennLayout {
+  data: ISetOverlap;
+  circles: readonly (ICircle & { set: string; text: IPoint })[];
+  arcs: readonly { circle: ICircle; width: number; p1: IPoint; p2: IPoint }[];
+  path: string;
+}
+export function computeVennLayout(data: readonly ISetOverlap[], options?: IComputeVennLayoutOptions): IVennLayout[];
