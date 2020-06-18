@@ -155,7 +155,7 @@ export function computeTextCentres(
 // sorts all areas in the venn diagram, so that
 // a particular area is on top (relativeTo) - and
 // all other areas are so that the smallest areas are on top
-export function sortAreas(div: Selection<any, any, any, any>, relativeTo: { sets: readonly string[] }): void;
+export function sortAreas(div: Selection<any, any, any, unknown>, relativeTo: { sets: readonly string[] }): void;
 
 export function circlePath(x: number, y: number, r: number): string;
 
@@ -182,13 +182,13 @@ export interface IStyledSetOverlap extends ISetOverlap {
 }
 
 export interface IVennDiagram {
-  (selection: Selection<HTMLElement, readonly IStyledSetOverlap[], unknown, unknown>): {
+  (selection: Selection<HTMLElement, readonly IStyledSetOverlap[], any, unknown>): {
     circles: ISolution;
     textCentres: { [set: string]: IPoint };
-    nodes: Selection<SVGGElement, IStyledSetOverlap, unknown, unknown>;
-    enter: Selection<SVGGElement, IStyledSetOverlap, unknown, unknown>;
-    update: Selection<SVGGElement, IStyledSetOverlap, unknown, unknown>;
-    exit: Selection<SVGGElement, IStyledSetOverlap, unknown, unknown>;
+    nodes: Selection<SVGGElement, IStyledSetOverlap, any, unknown>;
+    enter: Selection<SVGGElement, IStyledSetOverlap, any, unknown>;
+    update: Selection<SVGGElement, IStyledSetOverlap, any, unknown>;
+    exit: Selection<SVGGElement, IStyledSetOverlap, any, unknown>;
   };
 
   wrap(): boolean;
