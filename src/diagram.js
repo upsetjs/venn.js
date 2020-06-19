@@ -1,5 +1,5 @@
 import { venn, lossFunction, logRatioLossFunction, normalizeSolution, scaleSolution } from './layout';
-import { intersectionArea, distance, getCenter, getIntersectionPoints } from './circleintersection';
+import { intersectionArea, distance, getCenter } from './circleintersection';
 import { nelderMead } from 'fmin';
 
 /*global console:true*/
@@ -138,9 +138,6 @@ export function VennDiagram(options = {}) {
         previous[d.sets[0]] = circleFromPath(path);
       }
     });
-    const allPreviousIntersectionPoints =
-      hasPrevious && distinct ? getIntersectionPoints(Object.keys(previous).map((c) => previous[c])) : undefined;
-
     // interpolate intersection area paths between previous and
     // current paths
     function pathTween(d) {
@@ -160,7 +157,7 @@ export function VennDiagram(options = {}) {
             radius: start.radius * (1 - t) + end.radius * t,
           };
         });
-        return intersectionAreaPath(c, allPreviousIntersectionPoints);
+        return intersectionAreaPath(c);
       };
     }
 
@@ -222,15 +219,7 @@ export function VennDiagram(options = {}) {
       update = asTransition(selection);
       update.selectAll('path').attrTween('d', pathTween);
     } else {
-      const allIntersectionPoints = distinct
-        ? getIntersectionPoints(Object.keys(circles).map((c) => circles[c]))
-        : undefined;
-      update.selectAll('path').attr('d', (d) =>
-        intersectionAreaPath(
-          d.sets.map((set) => circles[set]),
-          allIntersectionPoints
-        )
-      );
+      update.selectAll('path').attr('d', (d) => intersectionAreaPath(d.sets.map((set) => circles[set])));
     }
 
     const updateText = update
@@ -681,12 +670,12 @@ export function circleFromPath(path) {
   return { x: Number.parseFloat(tokens[1]), y: Number.parseFloat(tokens[2]), radius: -Number.parseFloat(tokens[4]) };
 }
 
-function intersectionAreaArcs(circles, allIntersectionPoints) {
+function intersectionAreaArcs(circles) {
   if (circles.length === 0) {
     return [];
   }
   const stats = {};
-  intersectionArea(circles, stats, allIntersectionPoints);
+  intersectionArea(circles, stats);
   return stats.arcs;
 }
 
@@ -712,8 +701,8 @@ function arcsToPath(arcs) {
  * @param {ReadonlyArray<{x: number, y: number, radius: number}>} circles
  * @returns {string}
  */
-export function intersectionAreaPath(circles, allIntersectionPoints) {
-  return arcsToPath(intersectionAreaArcs(circles, allIntersectionPoints));
+export function intersectionAreaPath(circles) {
+  return arcsToPath(intersectionAreaArcs(circles));
 }
 
 export function layout(data, options = {}) {
@@ -754,11 +743,9 @@ export function layout(data, options = {}) {
       },
     ])
   );
-  const allIntersectionPoints = distinct ? getIntersectionPoints(Array.from(circleLookup.values())) : undefined;
-
   return data.map((area) => {
     const circles = area.sets.map((s) => circleLookup.get(s));
-    const arcs = intersectionAreaArcs(circles, allIntersectionPoints);
+    const arcs = intersectionAreaArcs(circles);
     return {
       data: area,
       text: textCentres[area.sets],

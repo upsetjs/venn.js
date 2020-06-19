@@ -82,7 +82,7 @@ export function intersectionArea(circles, stats) {
 
           // pick the circle whose arc has the smallest width
           if (arc == null || arc.width > width) {
-            arc = { circle, width, p1: p1, p2: p2 };
+            arc = { circle, width, p1, p2, large: width > circle.radius, sweep: true };
           }
         }
       }
@@ -122,6 +122,8 @@ export function intersectionArea(circles, stats) {
         p1: { x: smallest.x, y: smallest.y + smallest.radius },
         p2: { x: smallest.x - SMALL, y: smallest.y + smallest.radius },
         width: smallest.radius * 2,
+        large: true,
+        sweep: true,
       });
     }
   }
