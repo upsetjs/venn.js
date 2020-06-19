@@ -191,9 +191,18 @@ export interface IVennDiagram {
     exit: Selection<SVGGElement, IStyledSetOverlap, any, unknown>;
   };
 
+  /**
+   * wrap the labels
+   * @default true
+   */
   wrap(): boolean;
   wrap(v: boolean): this;
+  /**
+   * use a view box instead of specifying with and height
+   * @default false
+   */
   useViewBox(): this;
+
   width(): number;
   width(v: number): this;
   height(): number;
@@ -210,6 +219,10 @@ export interface IVennDiagram {
   duration(): number;
   duration(v: number): this;
 
+  /**
+   * normalize the solution
+   * @default true
+   */
   normalize(): boolean;
   normalize(v: boolean): this;
   layoutFunction(): typeof venn;
@@ -221,9 +234,18 @@ export interface IVennDiagram {
   styled(): boolean;
   styled(v: boolean): this;
 
-  round(): boolean;
-  round(v: boolean): this;
+  /**
+   * round generate path to the given number of digits or null to disable
+   * @default null
+   */
+  round(): number | null;
+  round(v: number | null): this;
 
+  /**
+   * interpret the data as distinct sets, so set A is actually set A \ B u C
+   * thus A is (A \ (B u C)) u (A ^ B \ C) u (A ^ C \ B) u (A ^ B ^ C)
+   * @default false
+   */
   distinct(): boolean;
   distinct(v: boolean): this;
 
@@ -257,22 +279,38 @@ export interface IComputeVennLayoutOptions {
   width?: number;
   height?: number;
   padding?: number;
+  /**
+   * @default true
+   */
   normalize?: boolean;
   layoutFunction?: typeof venn;
   lossFunction?: typeof lossFunction | 'logRatio';
   scaleToFit?: boolean;
   orientation?: number;
   distinct?: boolean;
+  /**
+   * @default 2
+   */
   round?: number;
   orientationOrder?: (a: ICircle, b: ICircle) => number;
 }
 
 export interface IVennLayout<T> {
   data: T;
+  /**
+   * text location
+   */
   text: IPoint;
   circles: readonly (ICircle & { set: string })[];
   arcs: readonly { circle: ICircle; width: number; p1: IPoint; p2: IPoint; large: boolean; sweep: boolean }[];
+  /**
+   * SVG path
+   */
   path: string;
+  /**
+   * distinct SVG path, render with `fill-rule: evenodd`;
+   */
+  distinctPath: string;
 }
 export function layout<T extends ISetOverlap>(
   data: readonly T[],
