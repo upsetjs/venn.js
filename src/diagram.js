@@ -32,6 +32,7 @@ export function VennDiagram(options = {}) {
     styled = true,
     fontSize = null,
     orientationOrder = null,
+    distinct = false,
     symmetricalTextCentre = options && options.symmetricalTextCentre ? options.symmetricalTextCentre : false,
     // mimic the behaviour of d3.scale.category10 from the previous
     // version of d3
@@ -87,7 +88,7 @@ export function VennDiagram(options = {}) {
     let textCentres = {};
 
     if (data.length > 0) {
-      let solution = layoutFunction(data, { lossFunction: loss });
+      let solution = layoutFunction(data, { lossFunction: loss, distinct });
 
       if (normalize) {
         solution = normalizeSolution(solution, orientation, orientationOrder);
@@ -132,7 +133,7 @@ export function VennDiagram(options = {}) {
     let hasPrevious = false;
     svg.selectAll('.venn-area path').each(function (d) {
       const path = this.getAttribute('d');
-      if (d.sets.length == 1 && path) {
+      if (d.sets.length == 1 && path && !distinct) {
         hasPrevious = true;
         previous[d.sets[0]] = circleFromPath(path);
       }
@@ -289,6 +290,12 @@ export function VennDiagram(options = {}) {
   chart.padding = function (_) {
     if (!arguments.length) return padding;
     padding = _;
+    return chart;
+  };
+
+  chart.distinct = function (_) {
+    if (!arguments.length) return distinct;
+    distinct = _;
     return chart;
   };
 
@@ -712,10 +719,12 @@ export function layout(data, options = {}) {
     padding = 15,
     scaleToFit = false,
     symmetricalTextCentre = false,
+    distinct = false,
   } = options;
 
   let solution = layout(data, {
     lossFunction: loss === 'default' || !loss ? lossFunction : loss === 'logRatio' ? logRatioLossFunction : loss,
+    distinct,
   });
 
   if (normalize) {

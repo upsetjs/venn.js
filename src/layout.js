@@ -15,7 +15,7 @@ export function venn(sets, parameters = {}) {
   const loss = parameters.lossFunction || lossFunction;
 
   // add in missing pairwise areas as having 0 size
-  const areas = addMissingAreas(sets);
+  const areas = addMissingAreas(sets, parameters);
 
   // initial layout is done greedily
   const circles = initialLayout(areas, parameters);
@@ -86,25 +86,51 @@ export function distanceFromIntersectArea(r1, r2, overlap) {
  * @param {ReadonlyArray<{sets: ReadonlyArray<string>, size: number}>} areas
  * @returns {ReadonlyArray<{sets: ReadonlyArray<string>, size: number}>}
  */
-function addMissingAreas(areas) {
-  const r = areas.slice();
+function addMissingAreas(areas, parameters = {}) {
+  const distinct = parameters.distinct;
+  const r = areas.map((s) => Object.assign({}, s));
+
+  function toKey(arr) {
+    return arr.join(';');
+  }
+
+  if (distinct) {
+    // recreate the full ones by adding things up but just to level two since the rest doesn't matter
+    /** @types Map<string, number> */
+    const count = new Map();
+    for (const area of r) {
+      for (let i = 0; i < area.sets.length; i++) {
+        const si = String(area.sets[i]);
+        count.set(si, area.size + (count.get(si) || 0));
+        for (let j = i + 1; j < area.sets.length; j++) {
+          const sj = String(area.sets[j]);
+          const k1 = `${si};${sj}`;
+          const k2 = `${sj};${si}`;
+          count.set(k1, area.size + (count.get(k1) || 0));
+          count.set(k2, area.size + (count.get(k2) || 0));
+        }
+      }
+    }
+    for (const area of r) {
+      if (area.sets.length < 3) {
+        area.size = count.get(toKey(area.sets));
+      }
+    }
+  }
 
   // two circle intersections that aren't defined
   const ids = [];
 
   /** @type {Set<string>} */
   const pairs = new Set();
-  function toKey(a, b) {
-    return `${a}-${b}`;
-  }
   for (const area of r) {
     if (area.sets.length === 1) {
       ids.push(area.sets[0]);
     } else if (area.sets.length === 2) {
       const a = area.sets[0];
       const b = area.sets[1];
-      pairs.add(toKey(a, b));
-      pairs.add(toKey(b, a));
+      pairs.add(toKey(area.sets));
+      pairs.add(toKey([b, a]));
     }
   }
 
@@ -114,7 +140,7 @@ function addMissingAreas(areas) {
     const a = ids[i];
     for (let j = i + 1; j < ids.length; ++j) {
       const b = ids[j];
-      if (!pairs.has(toKey(a, b))) {
+      if (!pairs.has(toKey([a, b]))) {
         r.push({ sets: [a, b], size: 0 });
       }
     }

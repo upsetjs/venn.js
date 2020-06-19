@@ -221,6 +221,9 @@ export interface IVennDiagram {
   styled(): boolean;
   styled(v: boolean): this;
 
+  distinct(): boolean;
+  distinct(v: boolean): this;
+
   orientation(): number;
   orientation(v: number): this;
   orientationOrder(): null | ((a: ICircle, b: ICircle) => number);
@@ -256,6 +259,7 @@ export interface IComputeVennLayoutOptions {
   lossFunction?: typeof lossFunction | 'logRatio';
   scaleToFit?: boolean;
   orientation?: number;
+  distinct?: boolean;
   orientationOrder?: (a: ICircle, b: ICircle) => number;
 }
 
