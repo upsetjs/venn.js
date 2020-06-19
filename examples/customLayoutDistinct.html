@@ -55,7 +55,8 @@
       .attr('x', (d) => d.text.x)
       .attr('y', (d) => d.text.y);
     g.select('path')
-      .attr('d', (d) => d.path)
-      .style('fill', (d, i) => (d.circles.length === 1 ? d3.schemeCategory10[i] : undefined));
+      .attr('d', (d) => d.distinctPath)
+      .style('fill-rule', 'evenodd')
+      .style('fill', (d, i) => d3.schemeCategory10[i]);
   </script>
 </html>

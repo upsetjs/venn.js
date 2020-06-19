@@ -33,6 +33,7 @@ export function VennDiagram(options = {}) {
     fontSize = null,
     orientationOrder = null,
     distinct = false,
+    round = null,
     symmetricalTextCentre = options && options.symmetricalTextCentre ? options.symmetricalTextCentre : false,
     // mimic the behaviour of d3.scale.category10 from the previous
     // version of d3
@@ -157,7 +158,7 @@ export function VennDiagram(options = {}) {
             radius: start.radius * (1 - t) + end.radius * t,
           };
         });
-        return intersectionAreaPath(c);
+        return intersectionAreaPath(c, round);
       };
     }
 
@@ -219,7 +220,7 @@ export function VennDiagram(options = {}) {
       update = asTransition(selection);
       update.selectAll('path').attrTween('d', pathTween);
     } else {
-      update.selectAll('path').attr('d', (d) => intersectionAreaPath(d.sets.map((set) => circles[set])));
+      update.selectAll('path').attr('d', (d) => intersectionAreaPath(d.sets.map((set) => circles[set])), round);
     }
 
     const updateText = update
@@ -313,6 +314,12 @@ export function VennDiagram(options = {}) {
   chart.fontSize = function (_) {
     if (!arguments.length) return fontSize;
     fontSize = _;
+    return chart;
+  };
+
+  chart.round = function (_) {
+    if (!arguments.length) return round;
+    round = _;
     return chart;
   };
 
@@ -679,19 +686,21 @@ function intersectionAreaArcs(circles) {
   return stats.arcs;
 }
 
-function arcsToPath(arcs) {
+function arcsToPath(arcs, round) {
   if (arcs.length === 0) {
     return 'M 0 0';
   }
+  const rFactor = Math.pow(10, round || 0);
+  const r = round != null ? (v) => Math.round(v * rFactor) / rFactor : (v) => v;
   if (arcs.length == 1) {
     const circle = arcs[0].circle;
-    return circlePath(circle.x, circle.y, circle.radius);
+    return circlePath(r(circle.x), r(circle.y), r(circle.radius));
   }
   // draw path around arcs
-  const ret = ['\nM', arcs[0].p2.x, arcs[0].p2.y];
+  const ret = ['\nM', r(arcs[0].p2.x), r(arcs[0].p2.y)];
   for (const arc of arcs) {
-    const r = arc.circle.radius;
-    ret.push('\nA', r, r, 0, arc.large ? 1 : 0, arc.sweep ? 1 : 0, arc.p1.x, arc.p1.y);
+    const radius = r(arc.circle.radius);
+    ret.push('\nA', radius, radius, 0, arc.large ? 1 : 0, arc.sweep ? 1 : 0, r(arc.p1.x), r(arc.p1.y));
   }
   return ret.join(' ');
 }
@@ -701,8 +710,8 @@ function arcsToPath(arcs) {
  * @param {ReadonlyArray<{x: number, y: number, radius: number}>} circles
  * @returns {string}
  */
-export function intersectionAreaPath(circles) {
-  return arcsToPath(intersectionAreaArcs(circles));
+export function intersectionAreaPath(circles, round) {
+  return arcsToPath(intersectionAreaArcs(circles), round);
 }
 
 export function layout(data, options = {}) {
@@ -718,6 +727,7 @@ export function layout(data, options = {}) {
     scaleToFit = false,
     symmetricalTextCentre = false,
     distinct,
+    round = 2,
   } = options;
 
   let solution = layout(data, {
@@ -743,15 +753,31 @@ export function layout(data, options = {}) {
       },
     ])
   );
-  return data.map((area) => {
+  const helpers = data.map((area) => {
     const circles = area.sets.map((s) => circleLookup.get(s));
     const arcs = intersectionAreaArcs(circles);
+    const path = arcsToPath(arcs, round);
+    return { circles, arcs, path, area, has: new Set(area.sets) };
+  });
+
+  function genDistinctPath(sets) {
+    let r = '';
+    for (const e of helpers) {
+      if (e.has.size > sets.length && sets.every((s) => e.has.has(s))) {
+        r += ' ' + e.path;
+      }
+    }
+    return r;
+  }
+
+  return helpers.map(({ circles, arcs, path, area }) => {
     return {
       data: area,
       text: textCentres[area.sets],
       circles,
       arcs,
-      path: arcsToPath(arcs),
+      path,
+      distinctPath: path + genDistinctPath(area.sets),
     };
   });
 }

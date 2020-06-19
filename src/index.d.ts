@@ -221,6 +221,9 @@ export interface IVennDiagram {
   styled(): boolean;
   styled(v: boolean): this;
 
+  round(): boolean;
+  round(v: boolean): this;
+
   distinct(): boolean;
   distinct(v: boolean): this;
 
@@ -260,6 +263,7 @@ export interface IComputeVennLayoutOptions {
   scaleToFit?: boolean;
   orientation?: number;
   distinct?: boolean;
+  round?: number;
   orientationOrder?: (a: ICircle, b: ICircle) => number;
 }
 
