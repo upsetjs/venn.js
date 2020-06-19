@@ -267,7 +267,7 @@ export interface IVennLayout<T> {
   data: T;
   text: IPoint;
   circles: readonly (ICircle & { set: string })[];
-  arcs: readonly { circle: ICircle; width: number; p1: IPoint; p2: IPoint }[];
+  arcs: readonly { circle: ICircle; width: number; p1: IPoint; p2: IPoint; large: boolean; sweep: boolean }[];
   path: string;
 }
 export function layout<T extends ISetOverlap>(
