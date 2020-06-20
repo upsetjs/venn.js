@@ -92,8 +92,10 @@
               arc = {
                 circle,
                 width,
-                p1: p1,
-                p2: p2
+                p1,
+                p2,
+                large: width > circle.radius,
+                sweep: true
               };
             }
           }
@@ -141,7 +143,9 @@
             x: smallest.x - SMALL,
             y: smallest.y + smallest.radius
           },
-          width: smallest.radius * 2
+          width: smallest.radius * 2,
+          large: true,
+          sweep: true
         });
       }
     }
@@ -795,7 +799,7 @@
     const initialLayout = parameters.initialLayout || bestInitialLayout;
     const loss = parameters.lossFunction || lossFunction; // add in missing pairwise areas as having 0 size
 
-    const areas = addMissingAreas(sets); // initial layout is done greedily
+    const areas = addMissingAreas(sets, parameters); // initial layout is done greedily
 
     const circles = initialLayout(areas, parameters); // transform x/y coordinates to a vector to optimize
 
@@ -863,17 +867,47 @@
    * @returns {ReadonlyArray<{sets: ReadonlyArray<string>, size: number}>}
    */
 
-  function addMissingAreas(areas) {
-    const r = areas.slice(); // two circle intersections that aren't defined
+  function addMissingAreas(areas, parameters = {}) {
+    const distinct = parameters.distinct;
+    const r = areas.map(s => Object.assign({}, s));
+
+    function toKey(arr) {
+      return arr.join(';');
+    }
+
+    if (distinct) {
+      // recreate the full ones by adding things up but just to level two since the rest doesn't matter
+
+      /** @types Map<string, number> */
+      const count = new Map();
+
+      for (const area of r) {
+        for (let i = 0; i < area.sets.length; i++) {
+          const si = String(area.sets[i]);
+          count.set(si, area.size + (count.get(si) || 0));
+
+          for (let j = i + 1; j < area.sets.length; j++) {
+            const sj = String(area.sets[j]);
+            const k1 = `${si};${sj}`;
+            const k2 = `${sj};${si}`;
+            count.set(k1, area.size + (count.get(k1) || 0));
+            count.set(k2, area.size + (count.get(k2) || 0));
+          }
+        }
+      }
+
+      for (const area of r) {
+        if (area.sets.length < 3) {
+          area.size = count.get(toKey(area.sets));
+        }
+      }
+    } // two circle intersections that aren't defined
+
 
     const ids = [];
     /** @type {Set<string>} */
 
     const pairs = new Set();
-
-    function toKey(a, b) {
-      return `${a}-${b}`;
-    }
 
     for (const area of r) {
       if (area.sets.length === 1) {
@@ -881,8 +915,8 @@
       } else if (area.sets.length === 2) {
         const a = area.sets[0];
         const b = area.sets[1];
-        pairs.add(toKey(a, b));
-        pairs.add(toKey(b, a));
+        pairs.add(toKey(area.sets));
+        pairs.add(toKey([b, a]));
       }
     }
 
@@ -894,7 +928,7 @@
       for (let j = i + 1; j < ids.length; ++j) {
         const b = ids[j];
 
-        if (!pairs.has(toKey(a, b))) {
+        if (!pairs.has(toKey([a, b]))) {
           r.push({
             sets: [a, b],
             size: 0
@@ -1288,6 +1322,33 @@
 
     return output;
   }
+  function logRatioLossFunction(circles, overlaps) {
+    let output = 0;
+
+    for (const area of overlaps) {
+      if (area.sets.length === 1) {
+        continue;
+      }
+      /** @type {number} */
+
+
+      let overlap;
+
+      if (area.sets.length === 2) {
+        const left = circles[area.sets[0]];
+        const right = circles[area.sets[1]];
+        overlap = circleOverlap(left.radius, right.radius, distance(left, right));
+      } else {
+        overlap = intersectionArea(area.sets.map(d => circles[d]));
+      }
+
+      const weight = area.weight != null ? area.weight : 1.0;
+      const differenceFromIdeal = Math.log((overlap + 1) / (area.size + 1));
+      output += weight * differenceFromIdeal * differenceFromIdeal;
+    }
+
+    return output;
+  }
   /**
    * orientates a bunch of circles to point in orientation
    * @param {{x :number, y: number, radius: number}[]} circles
@@ -1651,6 +1712,8 @@
         styled = true,
         fontSize = null,
         orientationOrder = null,
+        distinct = false,
+        round = null,
         symmetricalTextCentre = options && options.symmetricalTextCentre ? options.symmetricalTextCentre : false,
         // mimic the behaviour of d3.scale.category10 from the previous
     // version of d3
@@ -1692,7 +1755,8 @@
 
       if (data.length > 0) {
         let solution = layoutFunction(data, {
-          lossFunction: loss
+          lossFunction: loss,
+          distinct
         });
 
         if (normalize) {
@@ -1739,7 +1803,7 @@
       svg.selectAll('.venn-area path').each(function (d) {
         const path = this.getAttribute('d');
 
-        if (d.sets.length == 1 && path) {
+        if (d.sets.length == 1 && path && !distinct) {
           hasPrevious = true;
           previous[d.sets[0]] = circleFromPath(path);
         }
@@ -1774,7 +1838,7 @@
               radius: start.radius * (1 - t) + end.radius * t
             };
           });
-          return intersectionAreaPath(c);
+          return intersectionAreaPath(c, round);
         };
       } // update data, joining on the set ids
 
@@ -1815,7 +1879,7 @@
         update = asTransition(selection);
         update.selectAll('path').attrTween('d', pathTween);
       } else {
-        update.selectAll('path').attr('d', d => intersectionAreaPath(d.sets.map(set => circles[set])));
+        update.selectAll('path').attr('d', d => intersectionAreaPath(d.sets.map(set => circles[set])), round);
       }
 
       const updateText = update.selectAll('text').filter(d => d.sets in textCentres).text(d => label(d)).attr('x', d => Math.floor(textCentres[d.sets].x)).attr('y', d => Math.floor(textCentres[d.sets].y));
@@ -1885,6 +1949,12 @@
       return chart;
     };
 
+    chart.distinct = function (_) {
+      if (!arguments.length) return distinct;
+      distinct = _;
+      return chart;
+    };
+
     chart.colours = function (_) {
       if (!arguments.length) return colours;
       colours = _;
@@ -1900,6 +1970,12 @@
     chart.fontSize = function (_) {
       if (!arguments.length) return fontSize;
       fontSize = _;
+      return chart;
+    };
+
+    chart.round = function (_) {
+      if (!arguments.length) return round;
+      round = _;
       return chart;
     };
 
@@ -1947,7 +2023,7 @@
 
     chart.lossFunction = function (_) {
       if (!arguments.length) return loss;
-      loss = _;
+      loss = _ === 'default' ? lossFunction : _ === 'logRatio' ? logRatioLossFunction : _;
       return chart;
     };
 
@@ -2325,23 +2401,25 @@
     return stats.arcs;
   }
 
-  function arcsToPath(arcs) {
+  function arcsToPath(arcs, round) {
     if (arcs.length === 0) {
       return 'M 0 0';
     }
 
+    const rFactor = Math.pow(10, round || 0);
+    const r = round != null ? v => Math.round(v * rFactor) / rFactor : v => v;
+
     if (arcs.length == 1) {
       const circle = arcs[0].circle;
-      return circlePath(circle.x, circle.y, circle.radius);
+      return circlePath(r(circle.x), r(circle.y), r(circle.radius));
     } // draw path around arcs
 
 
-    const ret = ['\nM', arcs[0].p2.x, arcs[0].p2.y];
+    const ret = ['\nM', r(arcs[0].p2.x), r(arcs[0].p2.y)];
 
     for (const arc of arcs) {
-      const r = arc.circle.radius;
-      const wide = arc.width > r;
-      ret.push('\nA', r, r, 0, wide ? 1 : 0, 1, arc.p1.x, arc.p1.y);
+      const radius = r(arc.circle.radius);
+      ret.push('\nA', radius, radius, 0, arc.large ? 1 : 0, arc.sweep ? 1 : 0, r(arc.p1.x), r(arc.p1.y));
     }
 
     return ret.join(' ');
@@ -2353,12 +2431,12 @@
    */
 
 
-  function intersectionAreaPath(circles) {
-    return arcsToPath(intersectionAreaArcs(circles));
+  function intersectionAreaPath(circles, round) {
+    return arcsToPath(intersectionAreaArcs(circles), round);
   }
   function layout(data, options = {}) {
     const {
-      lossFunction: loss = lossFunction,
+      lossFunction: loss,
       layoutFunction: layout = venn,
       normalize = true,
       orientation = Math.PI / 2,
@@ -2367,10 +2445,13 @@
       height = 350,
       padding = 15,
       scaleToFit = false,
-      symmetricalTextCentre = false
+      symmetricalTextCentre = false,
+      distinct,
+      round = 2
     } = options;
     let solution = layout(data, {
-      lossFunction: loss
+      lossFunction: loss === 'default' || !loss ? lossFunction : loss === 'logRatio' ? logRatioLossFunction : loss,
+      distinct
     });
 
     if (normalize) {
@@ -2385,15 +2466,44 @@
       y: circles[set].y,
       radius: circles[set].radius
     }]));
-    return data.map(area => {
+    const helpers = data.map(area => {
       const circles = area.sets.map(s => circleLookup.get(s));
       const arcs = intersectionAreaArcs(circles);
+      const path = arcsToPath(arcs, round);
+      return {
+        circles,
+        arcs,
+        path,
+        area,
+        has: new Set(area.sets)
+      };
+    });
+
+    function genDistinctPath(sets) {
+      let r = '';
+
+      for (const e of helpers) {
+        if (e.has.size > sets.length && sets.every(s => e.has.has(s))) {
+          r += ' ' + e.path;
+        }
+      }
+
+      return r;
+    }
+
+    return helpers.map(({
+      circles,
+      arcs,
+      path,
+      area
+    }) => {
       return {
         data: area,
         text: textCentres[area.sets],
         circles,
         arcs,
-        path: arcsToPath(arcs)
+        path,
+        distinctPath: path + genDistinctPath(area.sets)
       };
     });
   }
@@ -2414,6 +2524,7 @@
   exports.intersectionArea = intersectionArea;
   exports.intersectionAreaPath = intersectionAreaPath;
   exports.layout = layout;
+  exports.logRatioLossFunction = logRatioLossFunction;
   exports.lossFunction = lossFunction;
   exports.normalizeSolution = normalizeSolution;
   exports.scaleSolution = scaleSolution;

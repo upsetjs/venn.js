@@ -44,12 +44,12 @@
           .style('font-weight', '100');
 
         d3.selectAll('#rings .venn-circle')
-          .on('mouseover', function (d, i) {
+          .on('mouseenter', function (d, i) {
             var node = d3.select(this).transition();
             node.select('path').style('fill-opacity', 0.2);
             node.select('text').style('font-weight', '100').style('font-size', '36px');
           })
-          .on('mouseout', function (d, i) {
+          .on('mouseleave', function (d, i) {
             var node = d3.select(this).transition();
             node.select('path').style('fill-opacity', 0);
             node.select('text').style('font-weight', '100').style('font-size', '24px');
