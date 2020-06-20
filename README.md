@@ -181,6 +181,8 @@ div
 Besides the handy `VennDiagram` wrapper, the library can used as a pure layout function using the `layout` method.
 One can render the result manually in D3 or even in HTML Canvas.
 
+The signature of the function can be found as part of the TypeScript typings at [index.ds.ts](https://github.com/upsetjs/venn.js/blob/master/src/index.d.ts)
+
 ### Custom D3 Rendering
 
 ```js
