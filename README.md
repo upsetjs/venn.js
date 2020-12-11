@@ -8,7 +8,7 @@ A javascript library for laying out area proportional venn and euler diagrams.
 
 Details of how this library works can be found on the [blog
 post](https://www.benfrederickson.com/venn-diagrams-with-d3.js/)
-I wrote about this. A follow up post [discusses testing strategy and
+the original author wrote about this. A follow up post [discusses testing strategy and
 algorithmic improvements](https://www.benfrederickson.com/better-venn-diagrams/).
 
 ## Install
@@ -245,7 +245,7 @@ Released under the MIT License.
 npm i -g yarn
 yarn set version 2
 yarn
-yarn pnpify --sdk
+yarn pnpify --sdk vscode
 ```
 
 ### Common commands
