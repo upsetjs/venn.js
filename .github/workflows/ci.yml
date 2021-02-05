@@ -14,7 +14,7 @@ jobs:
       - run: yarn set version berry
       - run: yarn config set checksumBehavior ignore
       - name: Cache Node.js modules
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.4
         with:
           path: ./.yarn
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
