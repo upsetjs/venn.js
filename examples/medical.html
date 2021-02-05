@@ -15,17 +15,17 @@
     <div id="venn"></div>
     <div id="venn2"></div>
     Dataset from <a href="http://www.cs.uic.edu/~wilkinson/Publications/venneuler.pdf">figure 8 of this paper</a>
+
+    <script src="https://d3js.org/d3.v6.js"></script>
+    <script src="../build/venn.js"></script>
+    <script src="medical.js"></script>
+    <script>
+      var chart = venn.VennDiagram().width(600).height(400);
+
+      d3.select('#venn').datum(sets).call(chart);
+      var chart2 = venn.VennDiagram().width(600).height(400).lossFunction('logRatio');
+
+      d3.select('#venn2').datum(sets).call(chart2);
+    </script>
   </body>
-
-  <script src="https://d3js.org/d3.v4.min.js"></script>
-  <script src="../build/venn.js"></script>
-  <script src="medical.js"></script>
-  <script>
-    var chart = venn.VennDiagram().width(600).height(400);
-
-    d3.select('#venn').datum(sets).call(chart);
-    var chart2 = venn.VennDiagram().width(600).height(400).lossFunction('logRatio');
-
-    d3.select('#venn2').datum(sets).call(chart2);
-  </script>
 </html>

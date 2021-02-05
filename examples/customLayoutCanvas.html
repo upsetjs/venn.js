@@ -7,32 +7,33 @@
 
   <body>
     <canvas id="venn" width="640" height="640"></canvas>
+
+    <script src="../build/venn.js"></script>
+    <script>
+      const sets = [
+        { sets: ['Information'], size: 12 },
+        { sets: ['Things That Overlap'], size: 12 },
+        { sets: ['Circles'], size: 12 },
+        { sets: ['Information', 'Things That Overlap'], size: 4, label: 'Redundancy' },
+        { sets: ['Information', 'Circles'], size: 4, label: 'Pie Charts' },
+        { sets: ['Things That Overlap', 'Circles'], size: 4, label: 'Eclipses' },
+        { sets: ['Information', 'Things That Overlap', 'Circles'], size: 2, label: 'Venn Diagrams' },
+      ];
+
+      const data = venn.layout(sets, { width: 640, height: 640 });
+      const ctx = document.querySelector('canvas').getContext('2d');
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'central';
+
+      data.forEach((d, i) => {
+        ctx.fillStyle = `hsla(${(360 * i) / data.length},80%,50%,0.6)`;
+        ctx.fill(new Path2D(d.path));
+      });
+      ctx.fillStyle = 'white';
+      ctx.font = '16px Helvetica Neue, Helvetica, Arial, sans-serif';
+      data.forEach((d, i) => {
+        ctx.fillText(d.data.label || d.data.sets.toString(), d.text.x, d.text.y);
+      });
+    </script>
   </body>
-  <script src="../build/venn.js"></script>
-  <script>
-    const sets = [
-      { sets: ['Information'], size: 12 },
-      { sets: ['Things That Overlap'], size: 12 },
-      { sets: ['Circles'], size: 12 },
-      { sets: ['Information', 'Things That Overlap'], size: 4, label: 'Redundancy' },
-      { sets: ['Information', 'Circles'], size: 4, label: 'Pie Charts' },
-      { sets: ['Things That Overlap', 'Circles'], size: 4, label: 'Eclipses' },
-      { sets: ['Information', 'Things That Overlap', 'Circles'], size: 2, label: 'Venn Diagrams' },
-    ];
-
-    const data = venn.layout(sets, { width: 640, height: 640 });
-    const ctx = document.querySelector('canvas').getContext('2d');
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'central';
-
-    data.forEach((d, i) => {
-      ctx.fillStyle = `hsla(${(360 * i) / data.length},80%,50%,0.6)`;
-      ctx.fill(new Path2D(d.path));
-    });
-    ctx.fillStyle = 'white';
-    ctx.font = '16px Helvetica Neue, Helvetica, Arial, sans-serif';
-    data.forEach((d, i) => {
-      ctx.fillText(d.data.label || d.data.sets.toString(), d.text.x, d.text.y);
-    });
-  </script>
 </html>
