@@ -216,7 +216,7 @@ export function VennDiagram(options = {}) {
 
     // update existing, using pathTween if necessary
     let update = selection;
-    if (hasPrevious) {
+    if (hasPrevious && typeof update.transition === 'function') {
       update = asTransition(selection);
       update.selectAll('path').attrTween('d', pathTween);
     } else {
@@ -246,7 +246,9 @@ export function VennDiagram(options = {}) {
 
     // remove old
     const exit = asTransition(nodes.exit()).remove();
-    exit.selectAll('path').attrTween('d', pathTween);
+    if (typeof nodes.transition === 'function') {
+      exit.selectAll('path').attrTween('d', pathTween);
+    }
 
     const exitText = exit
       .selectAll('text')
