@@ -243,9 +243,8 @@ Released under the MIT License.
 
 ```sh
 npm i -g yarn
-yarn set version 2
-yarn
-yarn pnpify --sdk vscode
+yarn install
+yarn sdks vscode
 ```
 
 ### Common commands

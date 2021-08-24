@@ -7,19 +7,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2.1.4
+      - uses: actions/setup-node@v2.4.0
         with:
-          node-version: '12.x'
+          node-version: '14.x'
       - run: npm i -g yarn
-      - run: yarn set version berry
       - run: yarn config set checksumBehavior ignore
       - name: Cache Node.js modules
         uses: actions/cache@v2.1.4
         with:
-          path: ./.yarn
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          path: |
+            ./.yarn/cache
+            ./.yarn/unplugged
+          key: ${{ runner.os }}-yarn2-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-yarn2-
       - run: yarn install
       - run: yarn build
       - run: yarn lint
