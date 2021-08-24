@@ -19,6 +19,7 @@ export interface ICircle {
   x: number;
   y: number;
   radius: number;
+  setid: string;
 }
 
 export interface ISolution {

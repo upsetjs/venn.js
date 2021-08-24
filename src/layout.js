@@ -800,10 +800,10 @@ export function scaleSolution(solution, width, height, padding, scaleToFit) {
 
 /**
  * @param {readonly {x: number, y: number, radius: number, setid: string}[]} circles
- * @returns {{[setid: string]: {x: number, y: number, radius: number}}}
+ * @returns {{[setid: string]: {x: number, y: number, radius: number, setid: string}}}
  */
 function toObjectNotation(circles) {
-  /** @type {{[setid: string]: {x: number, y: number, radius: number}}} */
+  /** @type {{[setid: string]: {x: number, y: number, radius: number, setid: string}}} */
   const r = {};
   for (const circle of circles) {
     r[circle.setid] = circle;
