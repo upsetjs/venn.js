@@ -31,14 +31,14 @@ jobs:
           name: diff outputs
           path: src/**/__diff_output__/*.png
       - name: Prepare Deploy
-        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           mkdir -p public/build
           cp README.md public/README.md
           cp -r examples public/
           cp build/venn.js public/build/
       - name: Deploy
-        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: peaceiris/actions-gh-pages@v3.8.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
