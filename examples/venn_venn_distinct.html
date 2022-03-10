@@ -13,26 +13,26 @@
 
   <body>
     <div id="venn"></div>
+
+    <script src="https://d3js.org/d3.v6.js"></script>
+    <script src="../build/venn.js"></script>
+    <script>
+      var sets = [
+        { sets: ['Information'], size: 6 },
+        { sets: ['Things That Overlap'], size: 6 },
+        { sets: ['Circles'], size: 6 },
+        { sets: ['Information', 'Things That Overlap'], size: 2, label: 'Redundancy' },
+        { sets: ['Information', 'Circles'], size: 2, label: 'Pie Charts' },
+        { sets: ['Things That Overlap', 'Circles'], size: 2, label: 'Eclipses' },
+        { sets: ['Information', 'Things That Overlap', 'Circles'], size: 2, label: 'Venn Diagrams' },
+      ];
+
+      var chart = venn.VennDiagram();
+      chart.wrap(false).width(640).height(640).distinct(true);
+
+      var div = d3.select('#venn').datum(sets).call(chart);
+      div.selectAll('text').style('fill', 'white');
+      div.selectAll('.venn-circle path').style('fill-opacity', 0.6);
+    </script>
   </body>
-
-  <script src="https://d3js.org/d3.v4.min.js"></script>
-  <script src="../build/venn.js"></script>
-  <script>
-    var sets = [
-      { sets: ['Information'], size: 6 },
-      { sets: ['Things That Overlap'], size: 6 },
-      { sets: ['Circles'], size: 6 },
-      { sets: ['Information', 'Things That Overlap'], size: 2, label: 'Redundancy' },
-      { sets: ['Information', 'Circles'], size: 2, label: 'Pie Charts' },
-      { sets: ['Things That Overlap', 'Circles'], size: 2, label: 'Eclipses' },
-      { sets: ['Information', 'Things That Overlap', 'Circles'], size: 2, label: 'Venn Diagrams' },
-    ];
-
-    var chart = venn.VennDiagram();
-    chart.wrap(false).width(640).height(640).distinct(true);
-
-    var div = d3.select('#venn').datum(sets).call(chart);
-    div.selectAll('text').style('fill', 'white');
-    div.selectAll('.venn-circle path').style('fill-opacity', 0.6);
-  </script>
 </html>

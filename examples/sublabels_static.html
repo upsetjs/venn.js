@@ -13,10 +13,11 @@
   <body>
     <div id="venn"></div>
 
-    <script src="https://d3js.org/d3.v6.js"></script>
+    <script src="https://unpkg.com/d3-selection"></script>
+    <!-- <script src="https://unpkg.com/d3"></script> -->
     <script src="../build/venn.js"></script>
     <script>
-      const sets = [
+      var sets = [
         { sets: ['Information'], size: 12 },
         { sets: ['Overlap'], size: 12 },
         { sets: ['Circles'], size: 12 },
@@ -26,70 +27,63 @@
         { sets: ['Information', 'Overlap', 'Circles'], size: 2, label: 'Venn Diagrams' },
       ];
 
-      const chart = venn.VennDiagram().wrap(false).fontSize('16px').width(640).height(640);
+      var chart = venn.VennDiagram().wrap(false).fontSize('16px').width(640).height(640);
 
       function updateVenn(sets) {
-        const div = d3.select('#venn').datum(sets);
+        var div = d3.select('#venn').datum(sets);
         var layout = chart(div),
-          circles = layout.circles;
+          textCentres = layout.textCentres;
 
         div.selectAll('.label').style('fill', 'white');
         div.selectAll('.venn-circle path').style('fill-opacity', 0.6);
 
-        // add new bounding boxes
+        // add new sublabels (growing from middle)
         layout.enter
-          .filter(function (d) {
-            return d.sets.length == 1;
+          .append('text')
+          .attr('class', 'sublabel')
+          .text(function (d) {
+            return 'size ' + d.size;
           })
-          .append('rect')
-          .attr('class', 'box')
-          .style('stroke', '#666')
-          .style('stroke-width', '2')
-          .style('fill-opacity', '0.2')
-          .attr('height', 0)
-          .attr('width', 0)
+          .style('fill', '#666')
+          .style('font-size', '0px')
+          .attr('text-anchor', 'middle')
+          .attr('dy', '0')
           .attr('x', chart.width() / 2)
           .attr('y', chart.height() / 2);
 
         // move existing
         layout.update
-          .selectAll('.box')
+          .selectAll('.sublabel')
           .filter(function (d) {
-            return d.sets in circles;
+            return d.sets in textCentres;
           })
+          .text(function (d) {
+            return 'size ' + d.size;
+          })
+          .style('font-size', '10px')
+          .attr('dy', '18')
           .attr('x', function (d) {
-            var c = circles[d.sets[0]];
-            return c.x - c.radius;
+            return Math.floor(textCentres[d.sets].x);
           })
           .attr('y', function (d) {
-            var c = circles[d.sets[0]];
-            return c.y - c.radius;
-          })
-          .attr('height', function (d) {
-            var c = circles[d.sets[0]];
-            return 2 * c.radius;
-          })
-          .attr('width', function (d) {
-            var c = circles[d.sets[0]];
-            return 2 * c.radius;
+            return Math.floor(textCentres[d.sets].y);
           });
 
         // remove old (shrinking to middle)
         layout.exit
-          .select('.box')
+          .select('.sublabel')
+          .attr('dy', '0')
           .attr('x', chart.width() / 2)
           .attr('y', chart.height() / 2)
-          .attr('width', 0)
-          .attr('height', 0)
           .style('font-size', '0px');
 
         return layout;
       }
 
       // add/remove set areas to showcase transitions
-      updateVenn(sets.slice(0, 2));
-      let i = 1;
-      let direction = 1;
+      updateVenn(sets.slice(0, 1));
+      var i = 1,
+        direction = 1;
       window.setInterval(function () {
         i += direction;
         if (i >= sets.length) {

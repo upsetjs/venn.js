@@ -9,70 +9,70 @@
         font-size: 14px;
       }
     </style>
+
+    <style>
+      .venntooltip {
+        position: absolute;
+        text-align: center;
+        width: 128px;
+        height: 16px;
+        background: #333;
+        color: #ddd;
+        padding: 2px;
+        border: 0px;
+        border-radius: 8px;
+        opacity: 0;
+      }
+    </style>
   </head>
 
   <body>
     <div id="venn"></div>
+
+    <script src="https://d3js.org/d3.v6.js"></script>
+    <script src="../build/venn.js"></script>
+    <script src="./lastfm.js"></script>
+
+    <script>
+      var chart = venn.VennDiagram().width(500).height(500);
+
+      var div = d3.select('#venn');
+      div.datum(sets).call(chart);
+
+      var tooltip = d3.select('body').append('div').attr('class', 'venntooltip');
+
+      div.selectAll('path').style('stroke-opacity', 0).style('stroke', '#fff').style('stroke-width', 3);
+
+      div
+        .selectAll('g')
+        .on('mouseenter', function (d, i) {
+          // sort all the areas relative to the current item
+          venn.sortAreas(div, d);
+
+          // Display a tooltip with the current size
+          tooltip.transition().duration(400).style('opacity', 0.9);
+          tooltip.text(d.size + ' users');
+
+          // highlight the current path
+          var selection = d3.select(this).transition('tooltip').duration(400);
+          selection
+            .select('path')
+            .style('fill-opacity', d.sets.length == 1 ? 0.4 : 0.1)
+            .style('stroke-opacity', 1);
+        })
+
+        .on('mousemove', function () {
+          tooltip.style('left', d3.event.pageX + 'px').style('top', d3.event.pageY - 28 + 'px');
+        })
+
+        .on('mouseleave', function (d, i) {
+          tooltip.transition().duration(400).style('opacity', 0);
+          var selection = d3.select(this).transition('tooltip').duration(400);
+          selection
+            .select('path')
+            .style('fill-opacity', d.sets.length == 1 ? 0.25 : 0.0)
+            .style('stroke-opacity', 0);
+        });
+    </script>
   </body>
-
-  <style>
-    .venntooltip {
-      position: absolute;
-      text-align: center;
-      width: 128px;
-      height: 16px;
-      background: #333;
-      color: #ddd;
-      padding: 2px;
-      border: 0px;
-      border-radius: 8px;
-      opacity: 0;
-    }
-  </style>
-
-  <script src="https://d3js.org/d3.v4.min.js"></script>
-  <script src="../build/venn.js"></script>
-  <script src="./lastfm.js"></script>
-
-  <script>
-    var chart = venn.VennDiagram().width(500).height(500);
-
-    var div = d3.select('#venn');
-    div.datum(sets).call(chart);
-
-    var tooltip = d3.select('body').append('div').attr('class', 'venntooltip');
-
-    div.selectAll('path').style('stroke-opacity', 0).style('stroke', '#fff').style('stroke-width', 3);
-
-    div
-      .selectAll('g')
-      .on('mouseenter', function (d, i) {
-        // sort all the areas relative to the current item
-        venn.sortAreas(div, d);
-
-        // Display a tooltip with the current size
-        tooltip.transition().duration(400).style('opacity', 0.9);
-        tooltip.text(d.size + ' users');
-
-        // highlight the current path
-        var selection = d3.select(this).transition('tooltip').duration(400);
-        selection
-          .select('path')
-          .style('fill-opacity', d.sets.length == 1 ? 0.4 : 0.1)
-          .style('stroke-opacity', 1);
-      })
-
-      .on('mousemove', function () {
-        tooltip.style('left', d3.event.pageX + 'px').style('top', d3.event.pageY - 28 + 'px');
-      })
-
-      .on('mouseleave', function (d, i) {
-        tooltip.transition().duration(400).style('opacity', 0);
-        var selection = d3.select(this).transition('tooltip').duration(400);
-        selection
-          .select('path')
-          .style('fill-opacity', d.sets.length == 1 ? 0.25 : 0.0)
-          .style('stroke-opacity', 0);
-      });
-  </script>
 </html>

@@ -1,10 +1,10 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
-  (global = global || self, factory(global.venn = {}));
-}(this, (function (exports) { 'use strict';
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.venn = {}));
+})(this, (function (exports) { 'use strict';
 
-  const SMALL = 1e-10;
+  const SMALL$1 = 1e-10;
   /**
    * Returns the intersection area of a bunch of circles (where each circle
    * is an object having an x,y and radius property)
@@ -140,7 +140,7 @@
             y: smallest.y + smallest.radius
           },
           p2: {
-            x: smallest.x - SMALL,
+            x: smallest.x - SMALL$1,
             y: smallest.y + smallest.radius
           },
           width: smallest.radius * 2,
@@ -171,7 +171,7 @@
    */
 
   function containedInCircles(point, circles) {
-    return circles.every(circle => distance(point, circle) < circle.radius + SMALL);
+    return circles.every(circle => distance(point, circle) < circle.radius + SMALL$1);
   }
   /**
    * Gets all intersection points between a bunch of circles
@@ -299,23 +299,11 @@
 
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
-  function createCommonjsModule(fn, basedir, module) {
-  	return module = {
-  	  path: basedir,
-  	  exports: {},
-  	  require: function (path, base) {
-        return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
-      }
-  	}, fn(module, module.exports), module.exports;
-  }
+  var fmin = {exports: {}};
 
-  function commonjsRequire () {
-  	throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
-  }
-
-  var fmin = createCommonjsModule(function (module, exports) {
+  (function (module, exports) {
     (function (global, factory) {
-       factory(exports) ;
+      factory(exports) ;
     })(commonjsGlobal, function (exports) {
       /** finds the zeros of a function, given two starting points (which must
        * have opposite signs */
@@ -503,42 +491,42 @@
           } // if the reflected point is worse than the second worst, we need to
           // contract
           else if (reflected.fx >= simplex[N - 1].fx) {
-              var shouldReduce = false;
+            var shouldReduce = false;
 
-              if (reflected.fx > worst.fx) {
-                // do an inside contraction
-                weightedSum(contracted, 1 + psi, centroid, -psi, worst);
-                contracted.fx = f(contracted);
+            if (reflected.fx > worst.fx) {
+              // do an inside contraction
+              weightedSum(contracted, 1 + psi, centroid, -psi, worst);
+              contracted.fx = f(contracted);
 
-                if (contracted.fx < worst.fx) {
-                  updateSimplex(contracted);
-                } else {
-                  shouldReduce = true;
-                }
+              if (contracted.fx < worst.fx) {
+                updateSimplex(contracted);
               } else {
-                // do an outside contraction
-                weightedSum(contracted, 1 - psi * rho, centroid, psi * rho, worst);
-                contracted.fx = f(contracted);
-
-                if (contracted.fx < reflected.fx) {
-                  updateSimplex(contracted);
-                } else {
-                  shouldReduce = true;
-                }
-              }
-
-              if (shouldReduce) {
-                // if we don't contract here, we're done
-                if (sigma >= 1) break; // do a reduction
-
-                for (i = 1; i < simplex.length; ++i) {
-                  weightedSum(simplex[i], 1 - sigma, simplex[0], sigma, simplex[i]);
-                  simplex[i].fx = f(simplex[i]);
-                }
+                shouldReduce = true;
               }
             } else {
-              updateSimplex(reflected);
+              // do an outside contraction
+              weightedSum(contracted, 1 - psi * rho, centroid, psi * rho, worst);
+              contracted.fx = f(contracted);
+
+              if (contracted.fx < reflected.fx) {
+                updateSimplex(contracted);
+              } else {
+                shouldReduce = true;
+              }
             }
+
+            if (shouldReduce) {
+              // if we don't contract here, we're done
+              if (sigma >= 1) break; // do a reduction
+
+              for (i = 1; i < simplex.length; ++i) {
+                weightedSum(simplex[i], 1 - sigma, simplex[0], sigma, simplex[i]);
+                simplex[i].fx = f(simplex[i]);
+              }
+            }
+          } else {
+            updateSimplex(reflected);
+          }
         }
 
         simplex.sort(sortOrder);
@@ -784,7 +772,7 @@
       exports.weightedSum = weightedSum;
       exports.scale = scale;
     });
-  });
+  })(fmin, fmin.exports);
 
   /**
    * given a list of set objects, and their corresponding overlaps
@@ -814,7 +802,7 @@
     } // optimize initial layout from our loss function
 
 
-    const solution = fmin.nelderMead(values => {
+    const solution = fmin.exports.nelderMead(values => {
       const current = {};
 
       for (let i = 0; i < setids.length; ++i) {
@@ -840,7 +828,7 @@
 
     return circles;
   }
-  const SMALL$1 = 1e-10;
+  const SMALL = 1e-10;
   /**
    * Returns the distance necessary for two circles of radius r1 + r2 to
    * have the overlap area 'overlap'
@@ -852,11 +840,11 @@
 
   function distanceFromIntersectArea(r1, r2, overlap) {
     // handle complete overlapped circles
-    if (Math.min(r1, r2) * Math.min(r1, r2) * Math.PI <= overlap + SMALL$1) {
+    if (Math.min(r1, r2) * Math.min(r1, r2) * Math.PI <= overlap + SMALL) {
       return Math.abs(r1 - r2);
     }
 
-    return fmin.bisect(distance => circleOverlap(r1, r2, distance) - overlap, 0, r1 + r2);
+    return fmin.exports.bisect(distance => circleOverlap(r1, r2, distance) - overlap, 0, r1 + r2);
   }
   /**
    * Missing pair-wise intersection area data can cause problems:
@@ -954,12 +942,12 @@
     /**
      * @type {number[][]}
      */
-    const distances = fmin.zerosM(sets.length, sets.length);
+    const distances = fmin.exports.zerosM(sets.length, sets.length);
     /**
      * @type {number[][]}
      */
 
-    const constraints = fmin.zerosM(sets.length, sets.length); // compute required distances between all the sets such that
+    const constraints = fmin.exports.zerosM(sets.length, sets.length); // compute required distances between all the sets such that
     // the areas match
 
     areas.filter(x => x.sets.length === 2).forEach(current => {
@@ -1071,7 +1059,7 @@
     } = getDistanceMatrices(areas, sets, setids); // keep distances bounded, things get messed up otherwise.
     // TODO: proper preconditioner?
 
-    const norm = fmin.norm2(distances.map(fmin.norm2)) / distances.length;
+    const norm = fmin.exports.norm2(distances.map(fmin.exports.norm2)) / distances.length;
     distances = distances.map(row => row.map(value => value / norm));
 
     const obj = (x, fxprime) => constrainedMDSGradient(x, fxprime, distances, constraints);
@@ -1079,8 +1067,8 @@
     let best = null;
 
     for (let i = 0; i < restarts; ++i) {
-      const initial = fmin.zeros(distances.length * 2).map(Math.random);
-      const current = fmin.conjugateGradient(obj, initial, params);
+      const initial = fmin.exports.zeros(distances.length * 2).map(Math.random);
+      const current = fmin.exports.conjugateGradient(obj, initial, params);
 
       if (!best || current.fx < best.fx) {
         best = current;
@@ -1104,7 +1092,7 @@
 
     if (params.history) {
       for (const h of params.history) {
-        fmin.scale(h.x, norm);
+        fmin.exports.scale(h.x, norm);
       }
     }
 
@@ -1149,7 +1137,7 @@
       const left = current.sets[0];
       const right = current.sets[1]; // completely overlapped circles shouldn't be positioned early here
 
-      if (current.size + SMALL$1 >= Math.min(circles[left].size, circles[right].size)) {
+      if (current.size + SMALL >= Math.min(circles[left].size, circles[right].size)) {
         weight = 0;
       }
 
@@ -1655,11 +1643,11 @@
   }
   /**
    * @param {readonly {x: number, y: number, radius: number, setid: string}[]} circles
-   * @returns {{[setid: string]: {x: number, y: number, radius: number}}}
+   * @returns {{[setid: string]: {x: number, y: number, radius: number, setid: string}}}
    */
 
   function toObjectNotation(circles) {
-    /** @type {{[setid: string]: {x: number, y: number, radius: number}}} */
+    /** @type {{[setid: string]: {x: number, y: number, radius: number, setid: string}}} */
     const r = {};
 
     for (const circle of circles) {
@@ -1875,7 +1863,7 @@
 
       let update = selection;
 
-      if (hasPrevious) {
+      if (hasPrevious && typeof update.transition === 'function') {
         update = asTransition(selection);
         update.selectAll('path').attrTween('d', pathTween);
       } else {
@@ -1900,7 +1888,11 @@
 
 
       const exit = asTransition(nodes.exit()).remove();
-      exit.selectAll('path').attrTween('d', pathTween);
+
+      if (typeof nodes.transition === 'function') {
+        exit.selectAll('path').attrTween('d', pathTween);
+      }
+
       const exitText = exit.selectAll('text').attr('x', width / 2).attr('y', height / 2); // if we've been passed a fontSize explicitly, use it to
       // transition
 
@@ -2176,7 +2168,7 @@
     } // maximize the margin numerically
 
 
-    const solution = fmin.nelderMead(p => -1 * circleMargin({
+    const solution = fmin.exports.nelderMead(p => -1 * circleMargin({
       x: p[0],
       y: p[1]
     }, interior, exterior), [initial.x, initial.y], {
@@ -2534,4 +2526,4 @@
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
-})));
+}));

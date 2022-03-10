@@ -12,7 +12,7 @@
   </head>
 
   <body>
-    <div style="float: left; padding: 20px;">
+    <div style="float: left; padding: 20px">
       <table>
         <tr>
           <td>|A|</td>
@@ -59,46 +59,47 @@
       </table>
     </div>
     <div id="venn"></div>
-    <div style="clear: both;"></div>
+    <div style="clear: both"></div>
+
+    <script src="https://d3js.org/d3.v6.js"></script>
+    <script src="../build/venn.js"></script>
+    <script>
+      function getSetIntersections() {
+        areas = d3
+          .selectAll('.venn_area')
+          .nodes()
+          .map(function (element) {
+            return { sets: element.id.split(','), size: parseFloat(element.value) };
+          });
+        return areas;
+      }
+
+      // draw the initial set
+      var chart = venn.VennDiagram().width(600).height(500);
+
+      function draw() {
+        d3.select('#venn').datum(getSetIntersections()).call(chart);
+        // tweak style
+        var colours = ['black', 'red', 'blue'];
+        d3.selectAll('#venn .venn-circle path')
+          .style('fill-opacity', 0)
+          .style('stroke-width', 10)
+          .style('stroke-opacity', 0.5)
+          .style('stroke', function (d, i) {
+            return colours[i];
+          });
+
+        d3.selectAll('#venn .venn-circle text')
+          .style('fill', function (d, i) {
+            return colours[i];
+          })
+          .style('font-size', '32px')
+          .style('font-weight', '100');
+      }
+
+      draw();
+      // redraw the sets on any change in input
+      d3.selectAll('input').on('change', draw);
+    </script>
   </body>
-  <script src="https://d3js.org/d3.v4.min.js"></script>
-  <script src="../build/venn.js"></script>
-  <script>
-    function getSetIntersections() {
-      areas = d3
-        .selectAll('.venn_area')
-        .nodes()
-        .map(function (element) {
-          return { sets: element.id.split(','), size: parseFloat(element.value) };
-        });
-      return areas;
-    }
-
-    // draw the initial set
-    var chart = venn.VennDiagram().width(600).height(500);
-
-    function draw() {
-      d3.select('#venn').datum(getSetIntersections()).call(chart);
-      // tweak style
-      var colours = ['black', 'red', 'blue'];
-      d3.selectAll('#venn .venn-circle path')
-        .style('fill-opacity', 0)
-        .style('stroke-width', 10)
-        .style('stroke-opacity', 0.5)
-        .style('stroke', function (d, i) {
-          return colours[i];
-        });
-
-      d3.selectAll('#venn .venn-circle text')
-        .style('fill', function (d, i) {
-          return colours[i];
-        })
-        .style('font-size', '32px')
-        .style('font-weight', '100');
-    }
-
-    draw();
-    // redraw the sets on any change in input
-    d3.selectAll('input').on('change', draw);
-  </script>
 </html>
