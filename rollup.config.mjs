@@ -3,7 +3,10 @@ import pnp from 'rollup-plugin-pnp-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
-import pkg from './package.json';
+
+import fs from 'fs';
+
+const pkg = JSON.parse(fs.readFileSync('./package.json'));
 
 export default [
   {
