@@ -183,7 +183,7 @@ export interface IStyledSetOverlap extends ISetOverlap {
 }
 
 export interface IVennDiagram {
-  (selection: Selection<HTMLElement, readonly IStyledSetOverlap[], any, unknown>): {
+  (selection: Selection<HTMLElement, readonly IStyledSetOverlap[], any, any>): {
     circles: ISolution;
     textCentres: { [set: string]: IPoint };
     nodes: Selection<SVGGElement, IStyledSetOverlap, any, unknown>;
