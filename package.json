@@ -57,6 +57,12 @@
   "dependencies": {
     "fmin": "^0.0.2"
   },
+  "resolutions": {
+    "fmin/rollup": "npm:empty-npm-package@1.0.0",
+    "fmin/json2module": "npm:empty-npm-package@1.0.0",
+    "fmin/tape": "npm:empty-npm-package@1.0.0",
+    "fmin/uglify-js": "npm:empty-npm-package@1.0.0"
+  },
   "devDependencies": {
     "@babel/core": "^7.24.7",
     "@babel/plugin-transform-runtime": "^7.24.7",
