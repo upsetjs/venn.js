@@ -54,9 +54,6 @@
     "d3-selection": "^3.0.0",
     "d3-transition": "^3.0.1"
   },
-  "dependencies": {
-    "fmin": "^0.0.2"
-  },
   "devDependencies": {
     "@babel/core": "^7.16.5",
     "@babel/plugin-transform-runtime": "^7.16.5",

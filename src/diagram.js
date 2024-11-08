@@ -1,6 +1,6 @@
 import { venn, lossFunction, logRatioLossFunction, normalizeSolution, scaleSolution } from './layout';
 import { intersectionArea, distance, getCenter } from './circleintersection';
-import { nelderMead } from 'fmin';
+import { nelderMead } from './fmin/nelderMead.js';
 
 /*global console:true*/
 
