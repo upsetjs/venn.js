@@ -129,7 +129,7 @@ export function nelderMead(f, x0, parameters) {
         if (sigma >= 1) break;
 
         // do a reduction
-        for (i = 1; i < simplex.length; ++i) {
+        for (let i = 1; i < simplex.length; ++i) {
           weightedSum(simplex[i], 1 - sigma, simplex[0], sigma, simplex[i]);
           simplex[i].fx = f(simplex[i]);
         }
