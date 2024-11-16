@@ -1,5 +1,4 @@
 // rollup.config.js
-import pnp from 'rollup-plugin-pnp-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
@@ -17,7 +16,7 @@ export default [
       format: 'umd',
     },
     external: Object.keys(pkg.peerDependencies || {}),
-    plugins: [commonjs(), pnp(), resolve(), babel({ babelHelpers: 'runtime' })],
+    plugins: [commonjs(), resolve(), babel({ babelHelpers: 'runtime' })],
   },
   {
     input: 'src/index.js',
@@ -26,6 +25,6 @@ export default [
       format: 'esm',
     },
     external: Object.keys(pkg.peerDependencies || {}).concat(Object.keys(pkg.dependencies || {})),
-    plugins: [commonjs(), pnp(), resolve()],
+    plugins: [commonjs(), resolve()],
   },
 ];
