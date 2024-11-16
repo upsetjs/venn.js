@@ -1,4 +1,5 @@
 import { computeTextCentre } from './diagram';
+import { describe, test, expect } from 'vitest';
 
 describe('computeTextCentre', () => {
   test('0', () => {
