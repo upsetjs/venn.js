@@ -1,4 +1,5 @@
 import { distance, intersectionArea, circleCircleIntersection, circleOverlap, circleArea } from './circleintersection';
+import { describe, test, expect } from 'vitest';
 
 describe('circleArea', () => {
   test('empty circle test', () => {

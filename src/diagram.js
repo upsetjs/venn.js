@@ -2,8 +2,6 @@ import { venn, lossFunction, logRatioLossFunction, normalizeSolution, scaleSolut
 import { intersectionArea, distance, getCenter } from './circleintersection';
 import { nelderMead } from 'fmin';
 
-/*global console:true*/
-
 /**
  * VennDiagram includes an optional `options` parameter containing the following option(s):
  *
@@ -45,19 +43,19 @@ export function VennDiagram(options = {}) {
       options && options.colourScheme
         ? options.colourScheme
         : options && options.colorScheme
-        ? options.colorScheme
-        : [
-            '#1f77b4',
-            '#ff7f0e',
-            '#2ca02c',
-            '#d62728',
-            '#9467bd',
-            '#8c564b',
-            '#e377c2',
-            '#7f7f7f',
-            '#bcbd22',
-            '#17becf',
-          ],
+          ? options.colorScheme
+          : [
+              '#1f77b4',
+              '#ff7f0e',
+              '#2ca02c',
+              '#d62728',
+              '#9467bd',
+              '#8c564b',
+              '#e377c2',
+              '#7f7f7f',
+              '#bcbd22',
+              '#17becf',
+            ],
     colourIndex = 0,
     colours = function (key) {
       if (key in colourMap) {
@@ -308,7 +306,7 @@ export function VennDiagram(options = {}) {
   };
 
   chart.colors = function (_) {
-    if (!arguments.length) return colors;
+    if (!arguments.length) return colours;
     colours = _;
     return chart;
   };

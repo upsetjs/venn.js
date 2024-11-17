@@ -1,5 +1,6 @@
 import { disjointCluster, normalizeSolution, greedyLayout, lossFunction, distanceFromIntersectArea } from './layout';
 import { distance, circleOverlap } from './circleintersection';
+import { describe, test, expect } from 'vitest';
 
 describe('greedyLayout', () => {
   test('0', () => {
