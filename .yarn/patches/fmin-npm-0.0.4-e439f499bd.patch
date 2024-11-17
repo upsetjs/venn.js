@@ -1,0 +1,46 @@
+diff --git a/build/fmin.js b/build/fmin.js
+index da5504ab16463811c1aff42ac0458ca6b7378d28..506ceefaef866275ea1f48b34384fd99756ba042 100644
+--- a/build/fmin.js
++++ b/build/fmin.js
+@@ -209,7 +209,7 @@
+                     if (sigma >= 1) break;
+ 
+                     // do a reduction
+-                    for (i = 1; i < simplex.length; ++i) {
++                    for (let i = 1; i < simplex.length; ++i) {
+                         weightedSum(simplex[i], 1 - sigma, simplex[0], sigma, simplex[i]);
+                         simplex[i].fx = f(simplex[i]);
+                     }
+diff --git a/package.json b/package.json
+index 9378ea45918a9879f0daf01b5742416cb84fd774..5d9e373425655c66193e5c490b8be5d09349225a 100644
+--- a/package.json
++++ b/package.json
+@@ -2,7 +2,6 @@
+     "name": "fmin",
+     "version": "0.0.4",
+     "description": "Unconstrained funcion minimization in Javascript",
+-    "type": "module",
+     "keywords": [
+         "fmin",
+         "optimization",
+@@ -11,6 +10,7 @@
+     ],
+     "license": "BSD-3-Clause",
+     "main": "build/fmin.js",
++    "module": "index.js",
+     "jsnext:main": "index",
+     "homepage": "https://github.com/benfred/fmin",
+     "repository": {
+diff --git a/src/nelderMead.js b/src/nelderMead.js
+index fe38e9104920d7cf77156b53f627855796b5a225..1cc99b6ff81c489f622fbea354b40759fe9e8445 100644
+--- a/src/nelderMead.js
++++ b/src/nelderMead.js
+@@ -129,7 +129,7 @@ export function nelderMead(f, x0, parameters) {
+                 if (sigma >= 1) break;
+ 
+                 // do a reduction
+-                for (i = 1; i < simplex.length; ++i) {
++                for (let i = 1; i < simplex.length; ++i) {
+                     weightedSum(simplex[i], 1 - sigma, simplex[0], sigma, simplex[i]);
+                     simplex[i].fx = f(simplex[i]);
+                 }
