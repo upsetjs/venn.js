@@ -12,7 +12,7 @@ export default [
   {
     input: 'src/index.js',
     output: [{
-      file: pkg.module,
+      file: pkg.require,
       name: 'venn',
       format: 'umd',
     }, {
@@ -27,7 +27,7 @@ export default [
   {
     input: 'src/index.js',
     output: {
-      file: pkg.require,
+      file: pkg.module,
       format: 'esm',
     },
     external: Object.keys(pkg.peerDependencies || {}).concat(Object.keys(pkg.dependencies || {})),

@@ -2127,6 +2127,8 @@ __metadata:
       optional: true
     d3-transition:
       optional: true
+    fmin@0.0.4:
+      unplugged: true
   languageName: unknown
   linkType: soft
 
@@ -3611,10 +3613,10 @@ __metadata:
 
 "fmin@patch:fmin@npm%3A0.0.4#~/.yarn/patches/fmin-npm-0.0.4-e439f499bd.patch":
   version: 0.0.4
-  resolution: "fmin@patch:fmin@npm%3A0.0.4#~/.yarn/patches/fmin-npm-0.0.4-e439f499bd.patch::version=0.0.4&hash=668960"
+  resolution: "fmin@patch:fmin@npm%3A0.0.4#~/.yarn/patches/fmin-npm-0.0.4-e439f499bd.patch::version=0.0.4&hash=a251e6"
   dependencies:
     contour_plot: "npm:^0.0.1"
-  checksum: 10c0/6fd049102d976ccdf0f884d5920b2398e6b31f19fecde0a1beacfef20df88dc9e8c1f62e2859f349eb39add9fa86276f34c26058053a2dc25491224f02de25ad
+  checksum: 10c0/2fe9e2a175772f3a3d90b38004d7bbd0e75e8a4d274ad1ed8349c54769a90fd3cc9c5034da513a5850502d8245de9d97caf0f088c2635f4d5969c2d21e6729fa
   languageName: node
   linkType: hard
 
