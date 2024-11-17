@@ -1,7 +1,7 @@
 {
   "name": "@upsetjs/venn.js",
   "description": "Area Proportional Venn and Euler Diagrams",
-  "version": "1.4.2",
+  "version": "2.0.0",
   "publishConfig": {
     "access": "public"
   },
