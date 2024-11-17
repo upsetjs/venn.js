@@ -101,10 +101,5 @@
     "build": "rollup -c",
     "format": "prettier --write examples \"*.{md,json,js,yml}\" \"{.github,src,examples}/**\""
   },
-  "packageManager": "yarn@4.5.1",
-  "dependenciesMeta": {
-    "fmin@0.0.4": {
-      "unplugged": true
-    }
-  }
+  "packageManager": "yarn@4.5.1"
 }

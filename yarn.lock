@@ -2127,8 +2127,6 @@ __metadata:
       optional: true
     d3-transition:
       optional: true
-    fmin@0.0.4:
-      unplugged: true
   languageName: unknown
   linkType: soft
 
