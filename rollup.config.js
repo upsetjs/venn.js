@@ -11,16 +11,19 @@ const pkg = JSON.parse(fs.readFileSync('./package.json'));
 export default [
   {
     input: 'src/index.js',
-    output: [{
-      file: pkg.require,
-      name: 'venn',
-      format: 'umd',
-    }, {
-      file: pkg.unpkg,
-      name: 'venn',
-      format: 'umd',
-      plugins: [terser()]
-    }],
+    output: [
+      {
+        file: pkg.require,
+        name: 'venn',
+        format: 'umd',
+      },
+      {
+        file: pkg.unpkg,
+        name: 'venn',
+        format: 'umd',
+        plugins: [terser()],
+      },
+    ],
     external: Object.keys(pkg.peerDependencies || {}),
     plugins: [commonjs(), resolve(), babel({ babelHelpers: 'bundled' })],
   },

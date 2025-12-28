@@ -1,6 +1,6 @@
-import js from "@eslint/js";
-import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
-import globals from "globals";
+import js from '@eslint/js';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import globals from 'globals';
 
 export default [
   js.configs.recommended,
@@ -12,8 +12,8 @@ export default [
       },
     },
     rules: {
-      "no-console": "off",
-      "no-unused-vars": "warn"
-    }
-  }
+      'no-console': 'off',
+      'no-unused-vars': 'warn',
+    },
+  },
 ];
