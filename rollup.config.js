@@ -16,6 +16,9 @@ export default [
       name: 'venn',
       format: 'umd',
     }, {
+      file: pkg.exports['.'].require,
+      format: 'cjs',
+    }, {
       file: pkg.unpkg,
       name: 'venn',
       format: 'umd',
