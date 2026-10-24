@@ -44,7 +44,7 @@
   "exports": {
     ".": {
       "import": "./build/venn.esm.js",
-      "require": "./build/index.js",
+      "require": "./build/venn.cjs",
       "scripts": "./build/venn.min.js",
       "types": "./src/index.d.ts"
     }
